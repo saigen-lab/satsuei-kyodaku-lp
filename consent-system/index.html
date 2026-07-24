@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>AI撮影許諾エージェント - 管理仕様デモ v0.7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* iOSで入力時に勝手にズームしないよう、出演者画面の入力は16px以上にします */
+    .performer-input {
+      font-size: 16px !important;
+      min-height: 48px;
+    }
+    .performer-check {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="bg-[#0F172A]">
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+const { useState, useMemo, useEffect } = React;
+
+// 営業戦略のハイブリッド案（2026-07-20ロック）と同期しています
+const PLANS = {
+  '梅': { price: '¥19,800', maxLocs: 3, maxConsents: 50, line: false, desc: 'お試し・月50件／超過は追加パック' },
+  '竹': { price: '¥39,800', maxLocs: 8, maxConsents: 200, line: false, desc: '本命・月200件／PDF・Drive想定' },
+  '松': { price: '¥79,800', maxLocs: 999, maxConsents: 1000, line: true, desc: '月1000件・LINE・オートチャージ可' },
+};
+
+const ITEMS = [
+  { key: 'item1', label: 'テレビ放送（地上波・BS・CS）および当該番組の再放送・再編集' },
+  { key: 'item2', label: '当該番組の公式SNSでの広報（X、Instagram、YouTube、Facebook等）※インターネット経由のため、国外からも閲覧される場合があります' },
+  { key: 'item3', label: '当該番組・許諾先のHP／アプリ／チラシ／ガイド誌等での広報' },
+  { key: 'item4', label: '調査研究・番組コンクール等への出品' },
+  { key: 'item5', label: '許諾先が管理する映像ライブラリーでの保管・社内参照' },
+  { key: 'item6', label: '許諾先または関連団体が主催するイベントでの上映' },
+  { key: 'item7', label: '見逃し配信・VOD等のオンデマンド配信※インターネット経由のため、国外からも閲覧される場合があります' },
+  { key: 'item8', label: '許諾先制作の他番組での素材・部分利用' },
+  { key: 'item9', label: '系列局・CATV・配信プラットフォーム等への番組／素材提供' },
+  { key: 'item10', label: '出版・DVD・Blu-ray等のパッケージ化（無償の記録・頒布目的。有償の広告・商品利用は含みません）' },
+];
+
+const DEFAULT_NOTICE = `【ご注意・重要事項】
+1. 放送日・配信日・公開範囲は、番組編成により変更される場合があります。
+2. 本同意の内容は送信後に変更できません（誤記の場合はお問い合わせのうえ再提出をお願いします）。
+3. 本同意の撤回を希望される場合は、下記お問い合わせ先までご連絡ください。ただし、すでに放送・公開済みの範囲については対応できない場合があります。
+4. 18歳未満の方は、保護者の同意が必要です（該当する場合は保護者同伴でご記入ください）。
+5. モザイク希望がある場合は、制作上可能な範囲で対応します（完全な非公開を保証するものではありません）。
+6. 本同意に基づく出演料の支払いは原則ありません。
+7. 公式SNS・見逃し配信等はインターネット経由のため、国外からも閲覧される場合があります（海外向け配給・海外放送権の譲渡は本同意の対象外です）。`;
+
+function buildPreamble(loc) {
+  const licensor =
+    loc.licensorMode === 'company' ? loc.companyName :
+    loc.licensorMode === 'program' ? loc.programName :
+    `${loc.companyName}／${loc.programName}`;
+  return `【肖像権・出演に関する同意】
+私は、下記の許諾先に対し、本日撮影された映像・音声・写真について、下記チェック項目の範囲で利用することを同意します。
+
+・許諾先：${licensor}
+・撮影日：本日
+・利用地域：日本国内（ただし公式SNS・見逃し配信等は、インターネット経由で国外からも閲覧される場合があります）
+・対価：本同意に基づく出演料の支払いは原則ありません
+・同意方法：下記項目は初期状態ですべて同意済みです。不同意の項目のみチェックを外してください`;
+}
+
+const ConsentSystemDemo = () => {
+  const [activeTab, setActiveTab] = useState('admin');
+  const [selectedPlan, setSelectedPlan] = useState('松');
+  const [locations, setLocations] = useState([
+    {
+      id: 'loc1',
+      name: '7/18 渋谷ロケ',
+      licensorMode: 'both',
+      companyName: '株式会社サンプル制作',
+      programName: '街角ドキュメント',
+      programNotice: '番組「街角ドキュメント」／お問い合わせ: seiyaku@example.com（平日10-18時）',
+      noticeText: DEFAULT_NOTICE,
+      createdAt: Date.now(),
+    },
+  ]);
+  const [activeLocId, setActiveLocId] = useState('loc1');
+  const [newLocName, setNewLocName] = useState('');
+  const [newLocCompany, setNewLocCompany] = useState('株式会社サンプル制作');
+  const [newLocProgram, setNewLocProgram] = useState('街角ドキュメント');
+  const [newLicensorMode, setNewLicensorMode] = useState('both');
+  const [newLocNotice, setNewLocNotice] = useState('番組「街角ドキュメント」／お問い合わせ: seiyaku@example.com');
+  // デモは自動生成せず、同フォルダの demo-qr.png を埋め込み表示します
+  const [qrImageBroken, setQrImageBroken] = useState(false);
+
+  const [searchQ, setSearchQ] = useState('');
+  const [filterMode, setFilterMode] = useState('all');
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const [dbData, setDbData] = useState([
+    {
+      id: Date.now() - 3600000, locId: 'loc1', time: '12:15', name: '鈴木 太郎', age: '20代',
+      clothing: '黒のパーカー、ベージュのズボン',
+      item1: true, item2: true, item3: false, item4: true, item5: false,
+      item6: true, item7: true, item8: true, item9: false, item10: true,
+      mosaic: '不要', confirmed: false, directorNote: '',
+      expiresAt: Date.now() + 86400000, immutable: true,
+    },
+    {
+      id: Date.now() - 1800000, locId: 'loc1', time: '12:32', name: '田中 花子', age: '30代',
+      clothing: '白のブラウス、青のデニム',
+      item1: true, item2: true, item3: true, item4: true, item5: true,
+      item6: true, item7: true, item8: true, item9: true, item10: true,
+      mosaic: '不要', confirmed: true, directorNote: 'OK・特記なし',
+      expiresAt: Date.now() + 86400000, immutable: true,
+    },
+  ]);
+
+  const [lineName, setLineName] = useState('');
+  const [lineAge, setLineAge] = useState('20代');
+  const [lineClothing, setLineClothing] = useState('');
+  const [lineItems, setLineItems] = useState({
+    item1: true, item2: true, item3: true, item4: true, item5: true,
+    item6: true, item7: true, item8: true, item9: true, item10: true,
+  });
+  const [lineMosaicMain, setLineMosaicMain] = useState('不要');
+  const [lineMosaicDetail, setLineMosaicDetail] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [replyPreview, setReplyPreview] = useState(null);
+  // 出演者スマホ体験用（管理UIを隠して文字を大きくします）
+  const [performerMode, setPerformerMode] = useState(false);
+
+  const activeLoc = locations.find(l => l.id === activeLocId) || locations[0];
+  const plan = PLANS[selectedPlan];
+
+  // URLパラメータで出演者入力画面を直接開く機能（QRスキャン時）
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const locId = params.get('loc');
+    
+    if (view === 'input') {
+      setActiveTab('input');
+      setPerformerMode(true);
+      setReplyPreview(null);
+      if (locId) {
+        // 該当ロケが存在すれば選択
+        const targetLoc = locations.find(l => l.id === locId);
+        if (targetLoc) {
+          setActiveLocId(locId);
+        }
+      }
+      // URLをクリーンアップ（履歴に残さない）
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  // 残数カウンター: 当該ロケの同意送信数
+  const usedCountForLoc = useMemo(() => {
+    return dbData.filter(d => d.locId === activeLocId).length;
+  }, [dbData, activeLocId]);
+
+  // 残数カウンター: 全体の同意送信数（プラン上限との比較用）
+  const usedCountTotal = useMemo(() => {
+    return dbData.length;
+  }, [dbData]);
+
+  const remainingConsents = plan.maxConsents - usedCountTotal;
+
+  // フルネーム判定（姓と名を半角/全角スペースで区切る）
+  const isFullName = (name) => {
+    const normalized = (name || '').trim().replace(/\u3000/g, ' ');
+    const parts = normalized.split(/\s+/).filter(Boolean);
+    return parts.length >= 2 && parts.every(p => p.length >= 1);
+  };
+  const nameOk = isFullName(lineName);
+
+  const getUnchecked = (data) =>
+    ITEMS.filter(i => !data[i.key]).map(i => i.label).join(' / ');
+
+  const filtered = useMemo(() => {
+    return dbData.filter(d => {
+      if (d.locId !== activeLocId) return false;
+      if (searchQ && !d.name.includes(searchQ)) return false;
+      const unchecked = getUnchecked(d);
+      if (filterMode === 'unchecked' && !unchecked) return false;
+      if (filterMode === 'mosaic' && d.mosaic === '不要') return false;
+      if (filterMode === 'unconfirmed' && d.confirmed) return false;
+      return true;
+    });
+  }, [dbData, activeLocId, searchQ, filterMode]);
+
+  const createLocation = () => {
+    if (!newLocName.trim()) return;
+    if (locations.length >= plan.maxLocs) {
+      alert(`【${selectedPlan}プラン】同時ロケ上限は${plan.maxLocs}件です。プラン変更か既存ロケを閉じてください。`);
+      return;
+    }
+    if (newLicensorMode !== 'program' && !newLocCompany.trim()) {
+      alert('制作会社名を入力してください');
+      return;
+    }
+    if (newLicensorMode !== 'company' && !newLocProgram.trim()) {
+      alert('番組名を入力してください');
+      return;
+    }
+    const id = 'loc' + Date.now();
+    setLocations([...locations, {
+      id,
+      name: newLocName.trim(),
+      licensorMode: newLicensorMode,
+      companyName: newLocCompany.trim(),
+      programName: newLocProgram.trim(),
+      programNotice: newLocNotice.trim() || 'お問い合わせ先未設定',
+      noticeText: DEFAULT_NOTICE,
+      createdAt: Date.now(),
+    }]);
+    setActiveLocId(id);
+    setNewLocName('');
+  };
+
+  // デモ用: 出演者スマホ画面を開きます（文字大きめ・管理UI非表示）
+  const openInputForDemo = () => {
+    setActiveTab('input');
+    setPerformerMode(true);
+    setReplyPreview(null);
+  };
+
+  const backToAdmin = () => {
+    setPerformerMode(false);
+    setActiveTab('admin');
+    setReplyPreview(null);
+  };
+
+  const buildConsentText = (row) => {
+    const itemsText = ITEMS.map((item, idx) =>
+      `${idx + 1}. ${item.label}: ${row[item.key] ? '同意' : '未同意'}`
+    ).join('\n');
+    return `【撮影同意書】（送信後編集不可）\n\n${buildPreamble(activeLoc)}\n\n【ロケ】${activeLoc?.name || ''}\n【申請者】\n氏名: ${row.name}\n年代: ${row.age}\n服装: ${row.clothing}\n\n【利用許諾】\n${itemsText}\n\n【モザイク】${row.mosaic}\n【D特記】${row.directorNote || '（なし）'}\n【確認済】${row.confirmed ? 'はい' : 'いいえ'}\n\n${activeLoc?.noticeText || DEFAULT_NOTICE}\n\n※デモ: 本番は御社Driveへ自動転送後、当サーバーから24hで削除`;
+  };
+
+  const downloadOne = (row) => {
+    const a = document.createElement('a');
+    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(buildConsentText(row));
+    a.download = `consent_${row.name}_${row.time}.txt`;
+    a.click();
+  };
+
+  const bulkDownload = () => {
+    const targets = selectedIds.length
+      ? filtered.filter(d => selectedIds.includes(d.id))
+      : filtered;
+    if (!targets.length) {
+      alert('ダウンロード対象がありません');
+      return;
+    }
+
+    // CSVヘッダー
+    const csvHeader = ['同意日', '同意時刻', '氏名', '年代', '服装', 'モザイク', '未同意項目', 'D特記事項', '確認済'].join(',');
+    
+    // CSVデータ行
+    const csvRows = targets.map(row => {
+      const unchecked = getUnchecked(row) || 'なし（全て同意）';
+      const confirmed = row.confirmed ? 'はい' : 'いいえ';
+      // 同意日をフォーマット（YYYY/MM/DD）
+      const dateStr = new Date(row.id).toLocaleDateString('ja-JP');
+      
+      // カンマを含む可能性があるフィールドはダブルクォートで囲む
+      return [
+        dateStr,
+        row.time,
+        `"${row.name}"`,
+        row.age,
+        `"${row.clothing}"`,
+        row.mosaic,
+        `"${unchecked}"`,
+        `"${row.directorNote || ''}"`,
+        confirmed
+      ].join(',');
+    });
+
+    const csvContent = [csvHeader, ...csvRows].join('\n');
+    
+    // BOMを付与してExcelでの文字化けを防ぐ
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `エディター引継ぎ用リスト_${activeLoc?.name || 'loc'}_${targets.length}件.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    alert(`✅ ${targets.length}件のエディター引継ぎ用リスト（CSV）をダウンロードしました。\n\n【デモの保存先】このPCの「ダウンロード」フォルダ\n【本番（松）】御社のGoogle Drive等へ自動転送\n【本番（梅竹）】手動DL（24h前にアラート通知）\n\n※本番では、このCSV1枚と、法的証拠となるPDFの束がセットで保存されます。エディターはこのCSVだけを見れば編集可能です。`);
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) setSelectedIds([]);
+    else setSelectedIds(filtered.map(d => d.id));
+  };
+
+  const updateRow = (id, patch) => {
+    setDbData(prev => prev.map(d => d.id === id ? { ...d, ...patch } : d));
+  };
+
+  const handleLineSubmit = (e) => {
+    e.preventDefault();
+    if (!lineName || !lineClothing) return;
+    if (!isFullName(lineName)) {
+      alert('お名前はフルネーム（姓と名）で、スペースを入れて入力してください。\n例: 山田 太郎');
+      return;
+    }
+    setIsSending(true);
+
+    setTimeout(() => {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const mosaicValue = lineMosaicMain === '要' ? lineMosaicDetail : '不要';
+      const newRow = {
+        id: Date.now(),
+        locId: activeLocId,
+        time: timeStr,
+        name: lineName,
+        age: lineAge,
+        clothing: lineClothing,
+        ...lineItems,
+        mosaic: mosaicValue,
+        confirmed: false,
+        directorNote: '',
+        expiresAt: Date.now() + 86400000,
+        immutable: true,
+      };
+      setDbData([newRow, ...dbData]);
+      setIsSending(false);
+
+      const itemsSummary = ITEMS.map(i =>
+        `・${i.label}: ${newRow[i.key] ? '同意' : '未同意'}`
+      ).join('\n');
+
+      setReplyPreview({
+        title: selectedPlan === '松' ? '📩 LINE自動返信（松プラン）' : '📩 送信控え（梅・竹は画面内表示）',
+        body: `${buildPreamble(activeLoc)}\n\n【ご入力内容の控え】（編集不可）\n氏名: ${newRow.name}\n年代: ${newRow.age}\n服装: ${newRow.clothing}\nモザイク: ${newRow.mosaic}\n\n【同意状況】\n${itemsSummary}\n\n【番組告知・お問い合わせ】\n${activeLoc.programNotice}\n\n${activeLoc.noticeText}`,
+      });
+
+      setLineName('');
+      setLineClothing('');
+      setLineMosaicMain('不要');
+      setLineMosaicDetail('');
+      setLineItems({
+        item1: true, item2: true, item3: true, item4: true, item5: true,
+        item6: true, item7: true, item8: true, item9: true, item10: true,
+      });
+    }, 700);
+  };
+
+  const formatRemain = (expiresAt) => {
+    const r = expiresAt - Date.now();
+    if (r <= 0) return '期限切れ';
+    return `${Math.floor(r / 3600000)}h ${Math.floor((r % 3600000) / 60000)}m`;
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0F172A] text-slate-200 font-sans">
+      {!performerMode && (
+        <>
+          <div className="bg-amber-900/30 border-b border-amber-500/30 p-2.5 text-center text-amber-400 text-xs">
+            ⚠️ 【免責】本サービスはASPです。同意の法的有効性について一切責任を負いません。
+          </div>
+          <div className="bg-blue-900/20 border-b border-blue-500/30 p-2.5 text-center text-blue-400 text-xs">
+            🔒 送信後編集不可（法令補助資料）／24h揮発／本番は御社Driveへ自動納品<br/>
+            <span className="text-emerald-400 font-bold">※個人情報保護法の観点および現場の入力ハードルを下げるため、連絡先（メール・電話等）は一切取得しない設計です。</span>
+          </div>
+        </>
+      )}
+
+      <div className={`mx-auto ${performerMode ? 'max-w-lg p-0' : 'max-w-7xl p-4'}`}>
+        {!performerMode && (
+          <>
+        {/* プラン */}
+        <div className="flex flex-wrap gap-2 mb-4 items-center justify-between">
+          <div className="flex gap-2">
+            {Object.keys(PLANS).map(p => (
+              <button
+                key={p}
+                onClick={() => setSelectedPlan(p)}
+                className={`px-4 py-2 rounded-lg text-sm font-bold ${
+                  selectedPlan === p ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'
+                }`}
+              >
+                {p} {PLANS[p].price}
+              </button>
+            ))}
+          </div>
+          <div className="text-xs text-slate-400">
+            {plan.desc}／同時ロケ上限 {plan.maxLocs === 999 ? '無制限' : plan.maxLocs}
+            {plan.line ? '／LINE自動返信あり' : '／LINE連携なし'}
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab('admin')}
+            className={`px-5 py-2.5 rounded-lg font-bold text-sm ${
+              activeTab === 'admin' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'
+            }`}
+          >
+            📊 管理画面
+          </button>
+          <button
+            onClick={openInputForDemo}
+            className={`px-5 py-2.5 rounded-lg font-bold text-sm ${
+              activeTab === 'input' ? 'bg-[#06C755] text-white' : 'bg-slate-800 text-slate-300'
+            }`}
+          >
+            📱 出演者入力
+          </button>
+        </div>
+          </>
+        )}
+
+        {!performerMode && activeTab === 'admin' && (
+          <div className="space-y-5">
+            {/* ロケ管理 */}
+            <div className="bg-[#1E293B] rounded-xl border border-slate-700 p-5">
+              <h2 className="text-sm font-bold text-white mb-3">① ロケ／番組単位の管理・許諾先設定</h2>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {locations.map(loc => (
+                  <button
+                    key={loc.id}
+                    onClick={() => { setActiveLocId(loc.id); setSelectedIds([]); }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                      activeLocId === loc.id
+                        ? 'bg-[#06C755]/20 border-[#06C755] text-[#06C755]'
+                        : 'border-slate-600 text-slate-400'
+                    }`}
+                  >
+                    {loc.name}
+                  </button>
+                ))}
+              </div>
+
+              {activeLoc && (
+                <div className="mb-4 p-3 bg-slate-900/50 rounded-lg text-xs text-slate-300 border border-slate-700">
+                  <strong className="text-white">現在の許諾設定：</strong><br/>
+                  許諾先表示＝
+                  {activeLoc.licensorMode === 'company' && '制作会社名のみ'}
+                  {activeLoc.licensorMode === 'program' && '番組名のみ'}
+                  {activeLoc.licensorMode === 'both' && '制作会社名＋番組名'}
+                  ／ {activeLoc.companyName} {activeLoc.programName && `／ ${activeLoc.programName}`}
+                  ／ 海外閲覧＝SNS・見逃し配信の文言に包含（別チェックなし）
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="text-[10px] text-slate-400">新規ロケ名</label>
+                  <input
+                    value={newLocName}
+                    onChange={e => setNewLocName(e.target.value)}
+                    placeholder="7/19 横浜ロケ"
+                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg p-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400">許諾先の表示（選択）</label>
+                  <select
+                    value={newLicensorMode}
+                    onChange={e => setNewLicensorMode(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg p-2 text-sm"
+                  >
+                    <option value="company">制作会社名のみ</option>
+                    <option value="program">番組名のみ</option>
+                    <option value="both">制作会社名＋番組名</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400">制作会社名</label>
+                  <input
+                    value={newLocCompany}
+                    onChange={e => setNewLocCompany(e.target.value)}
+                    disabled={newLicensorMode === 'program'}
+                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg p-2 text-sm disabled:opacity-40"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-400">番組名</label>
+                  <input
+                    value={newLocProgram}
+                    onChange={e => setNewLocProgram(e.target.value)}
+                    disabled={newLicensorMode === 'company'}
+                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg p-2 text-sm disabled:opacity-40"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-[10px] text-slate-400">番組告知／問い合わせ（自動返信に載る）</label>
+                  <input
+                    value={newLocNotice}
+                    onChange={e => setNewLocNotice(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-600 rounded-lg p-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* デモ用埋め込みQR（発行しない。consent-system/demo-qr.png を差し替え） */}
+              <div className="mt-4 p-4 bg-slate-900/50 border border-slate-600 rounded-xl flex flex-col items-center">
+                <p className="text-[10px] text-slate-400 mb-2 font-bold">出演者向けQR（デモ埋め込み）</p>
+                {!qrImageBroken ? (
+                  <img
+                    src="demo-qr.png"
+                    alt="デモ用埋め込みQR"
+                    className="w-[220px] h-[220px] object-contain bg-white p-3 rounded-xl border-2 border-slate-300"
+                    onError={() => setQrImageBroken(true)}
+                  />
+                ) : (
+                  <div className="w-[220px] h-[220px] bg-amber-500/10 border border-amber-500/40 rounded-xl p-4 text-[10px] text-amber-200 leading-relaxed flex items-center">
+                    demo-qr.png が見つかりません。
+                    consent-system フォルダに、マサが用意したQR画像を
+                    <strong className="mx-1">demo-qr.png</strong>
+                    という名前で置いてください。
+                  </div>
+                )}
+                <p className="text-xs text-slate-400 mt-2">出演者にこのQRを見せるだけ（{activeLoc?.name}）</p>
+                <p className="text-[9px] text-emerald-400 mt-1 text-center max-w-md break-all">
+                  飛び先: http://192.168.11.4:3000/?view=input&amp;loc=loc1
+                </p>
+                <p className="text-[9px] text-slate-500 mt-1 text-center max-w-md">
+                  ※PCでデモサーバー起動中・iPhoneは同じWi-Fiであること。サーバー未起動時は「出演者入力を開く」を使う。
+                </p>
+
+                <div className="mt-4 p-3 bg-slate-900/50 border border-slate-600 rounded-lg text-center w-full max-w-md">
+                  <div className="text-[10px] text-slate-400 mb-1">同意枠（{selectedPlan}プラン）</div>
+                  <div className="text-lg font-bold">
+                    <span className={remainingConsents <= 10 ? 'text-rose-400' : remainingConsents <= 30 ? 'text-amber-400' : 'text-emerald-400'}>
+                      残り {remainingConsents}
+                    </span>
+                    <span className="text-slate-500 text-sm"> / 上限 {plan.maxConsents}</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-1">
+                    このロケ: {usedCountForLoc}件 ／ 全体: {usedCountTotal}件使用
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button onClick={createLocation} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-bold">
+                  ロケ追加
+                </button>
+                <button
+                  onClick={openInputForDemo}
+                  className="px-4 py-2 bg-[#06C755] hover:bg-[#05b34c] rounded-lg text-sm font-bold text-white"
+                >
+                  📱 出演者入力を開く（デモ用）
+                </button>
+              </div>
+            </div>
+
+            {/* 検索・フィルタ・一括 */}
+            <div className="bg-[#1E293B] rounded-xl border border-slate-700 p-5">
+              <div className="flex flex-wrap gap-3 items-center justify-between mb-3">
+                <h2 className="text-sm font-bold text-white">②③④ 同意ログ管理</h2>
+                <span className="text-[10px] text-rose-300 bg-rose-500/10 border border-rose-500/30 px-2 py-1 rounded">
+                  🔒 同意内容は編集不可（法令補助資料）
+                </span>
+              </div>
+
+              <div className="bg-slate-900/60 border border-slate-600 rounded-lg p-3 mb-4 text-xs text-slate-300">
+                <strong className="text-blue-400">④ 保存先の明示とDL忘れ対策</strong><br/>
+                ・デモのDL → <span className="text-white font-bold">エディター引継ぎ用CSV1枚</span>が落ちます（PDFの束ではありません）<br/>
+                ・本番（松） → <span className="text-white font-bold">御社のGoogle Drive等へ【CSV1枚＋証拠PDFフォルダ】を自動転送</span><br/>
+                ・本番（梅竹） → 手動DL（ZIP形式。24h前にアラート通知）<br/>
+                ※いずれもマサ側のサーバーからは24hで完全消去
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                <input
+                  value={searchQ}
+                  onChange={e => setSearchQ(e.target.value)}
+                  placeholder="② 名前検索"
+                  className="bg-[#0F172A] border border-slate-600 rounded-lg px-3 py-2 text-sm min-w-[140px]"
+                />
+                {[
+                  ['all', 'すべて'],
+                  ['unchecked', '未同意のみ'],
+                  ['mosaic', 'モザイク要'],
+                  ['unconfirmed', '未確認のみ'],
+                ].map(([k, label]) => (
+                  <button
+                    key={k}
+                    onClick={() => setFilterMode(k)}
+                    className={`px-3 py-2 rounded-lg text-xs font-bold ${
+                      filterMode === k ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <button
+                  onClick={bulkDownload}
+                  className="ml-auto px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-bold text-white"
+                >
+                  ④ 引継ぎリスト(CSV)DL（{selectedIds.length || filtered.length}件）
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-[11px] border-collapse">
+                  <thead>
+                    <tr className="bg-[#0F172A]/50 border-b border-slate-700 text-slate-400">
+                      <th className="p-2">
+                        <input type="checkbox" checked={filtered.length > 0 && selectedIds.length === filtered.length} onChange={toggleSelectAll} />
+                      </th>
+                      <th className="p-2">同意日</th>
+                      <th className="p-2">時刻</th>
+                      <th className="p-2">氏名</th>
+                      <th className="p-2">服装</th>
+                      <th className="p-2">モザイク</th>
+                      <th className="p-2">未同意</th>
+                      <th className="p-2">③確認済</th>
+                      <th className="p-2">③D特記事項</th>
+                      <th className="p-2">残り</th>
+                      <th className="p-2">DL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700/50">
+                    {filtered.map(data => {
+                      const unchecked = getUnchecked(data);
+                      const dateStr = new Date(data.id).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+                      return (
+                        <tr key={data.id} className="hover:bg-slate-800/30 align-top">
+                          <td className="p-2">
+                            <input type="checkbox" checked={selectedIds.includes(data.id)} onChange={() => toggleSelect(data.id)} />
+                          </td>
+                          <td className="p-2 font-mono text-slate-500 text-[10px]">{dateStr}</td>
+                          <td className="p-2 font-mono text-slate-500">{data.time}</td>
+                          <td className="p-2 font-bold text-white">{data.name}</td>
+                          <td className="p-2 text-slate-400 max-w-[120px] truncate">{data.clothing}</td>
+                          <td className="p-2">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              data.mosaic === '不要' ? 'bg-slate-700 text-slate-400' : 'bg-rose-500/20 text-rose-400'
+                            }`}>{data.mosaic}</span>
+                          </td>
+                          <td className="p-2">
+                            {unchecked
+                              ? <span className="text-rose-400 font-bold">⚠️ {unchecked}</span>
+                              : <span className="text-emerald-400">✓ 全て同意</span>}
+                          </td>
+                          <td className="p-2">
+                            <button
+                              onClick={() => updateRow(data.id, { confirmed: !data.confirmed })}
+                              className={`px-2 py-1 rounded text-[10px] font-bold ${
+                                data.confirmed ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'
+                              }`}
+                            >
+                              {data.confirmed ? '確認済' : '未確認'}
+                            </button>
+                          </td>
+                          <td className="p-2 min-w-[140px]">
+                            <textarea
+                              value={data.directorNote}
+                              onChange={e => updateRow(data.id, { directorNote: e.target.value })}
+                              placeholder="D特記を記入"
+                              rows={2}
+                              className="w-full bg-[#0F172A] border border-slate-600 rounded p-1.5 text-[10px] text-white"
+                            />
+                          </td>
+                          <td className="p-2 text-amber-400 font-mono">{formatRemain(data.expiresAt)}</td>
+                          <td className="p-2">
+                            <button onClick={() => downloadOne(data)} className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-[9px] font-bold">
+                              DL
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {!filtered.length && (
+                      <tr><td colSpan={10} className="p-6 text-center text-slate-500">該当データなし</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[10px] text-slate-500 mt-3">
+                ※氏名・同意項目・服装などの出演者入力は編集できません。誤記は「訂正依頼→新規再送」のみ（本番フロー）。
+              </p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'input' && (
+          <div className={`flex justify-center ${performerMode ? 'min-h-screen' : ''}`}>
+            <div className={`w-full bg-[#111827] overflow-hidden ${
+              performerMode
+                ? 'max-w-lg min-h-screen'
+                : 'max-w-[420px] border-4 border-slate-700 rounded-[36px] shadow-2xl'
+            }`}>
+              <div className="bg-[#06C755] text-white px-5 py-4 sticky top-0 z-10">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="font-bold text-lg">撮影許可窓口</div>
+                    <div className="text-sm opacity-90">{activeLoc?.name || ''}</div>
+                  </div>
+                  {performerMode && (
+                    <button
+                      type="button"
+                      onClick={backToAdmin}
+                      className="text-xs bg-white/20 px-3 py-2 rounded-lg font-bold whitespace-nowrap"
+                    >
+                      管理へ
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className={`p-4 bg-[#111827] space-y-4 ${performerMode ? 'pb-10' : 'max-h-[70vh] overflow-y-auto'}`}>
+                {replyPreview ? (
+                  <div className="space-y-4">
+                    <div className="text-center text-emerald-400 font-bold text-lg">✅ 送信完了</div>
+                    <div className="text-sm font-bold text-[#06C755]">{replyPreview.title}</div>
+                    <pre className="whitespace-pre-wrap text-sm text-slate-300 bg-slate-900 p-4 rounded-xl border border-slate-700 leading-relaxed">
+{replyPreview.body}
+                    </pre>
+                    <button
+                      onClick={() => setReplyPreview(null)}
+                      className="w-full py-4 rounded-xl bg-slate-700 text-base font-bold"
+                    >
+                      次の入力へ
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#06C755] flex items-center justify-center text-sm font-bold shrink-0">A</div>
+                      <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-base leading-relaxed">
+                        本日のロケへのご協力ありがとうございます。肖像権・出演の同意をお願いします。（約1分）
+                      </div>
+                    </div>
+
+                    <details className="bg-slate-900 rounded-xl border border-slate-700 open:pb-1">
+                      <summary className="p-4 text-base font-bold text-slate-200 cursor-pointer">
+                        同意文を読む（タップで開く）
+                      </summary>
+                      <pre className="whitespace-pre-wrap text-sm text-slate-300 px-4 pb-4 leading-relaxed">
+{activeLoc ? buildPreamble(activeLoc) : ''}
+                      </pre>
+                    </details>
+
+                    <div className={`p-3 rounded-xl text-center text-base ${
+                      remainingConsents <= 0 ? 'bg-rose-500/20 border border-rose-500/50' :
+                      remainingConsents <= 10 ? 'bg-amber-500/20 border border-amber-500/50' :
+                      'bg-slate-800 border border-slate-600'
+                    }`}>
+                      {remainingConsents <= 0 ? (
+                        <span className="text-rose-400 font-bold">⚠️ 同意枠の上限に達しました</span>
+                      ) : (
+                        <>
+                          <span className="text-slate-400">同意枠: </span>
+                          <span className={`font-bold ${remainingConsents <= 10 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                            残り {remainingConsents}
+                          </span>
+                          <span className="text-slate-500"> / {plan.maxConsents}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <form onSubmit={handleLineSubmit} className="bg-[#1E293B] border border-slate-700 rounded-xl p-4 space-y-5">
+                      <div>
+                        <label className="text-sm text-slate-300 font-bold">① お名前（フルネーム） *</label>
+                        <input
+                          required
+                          value={lineName}
+                          onChange={e => setLineName(e.target.value)}
+                          placeholder="山田 太郎"
+                          autoComplete="name"
+                          className={`performer-input w-full bg-[#0F172A] border rounded-xl px-4 mt-2 text-base ${
+                            lineName && !nameOk ? 'border-rose-500' : 'border-slate-600'
+                          }`}
+                        />
+                        <p className={`text-sm mt-2 ${lineName && !nameOk ? 'text-rose-400' : 'text-slate-500'}`}>
+                          {lineName && !nameOk
+                            ? '姓と名のあいだにスペースを入れてください（例: 山田 太郎）'
+                            : '姓と名をスペース区切りで入力してください'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-slate-300 font-bold">② 年代 *</label>
+                        <select
+                          value={lineAge}
+                          onChange={e => setLineAge(e.target.value)}
+                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2 text-base"
+                        >
+                          <option>10代</option><option>20代</option><option>30代</option><option>40代</option><option>50代以上</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm text-slate-300 font-bold">③ 本日の服装 *</label>
+                        <input
+                          required
+                          value={lineClothing}
+                          onChange={e => setLineClothing(e.target.value)}
+                          placeholder="赤のTシャツなど"
+                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2 text-base"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-slate-300 font-bold">④ ご同意項目（デフォルト全て）</label>
+                        <div className="max-h-56 overflow-y-auto space-y-2 mt-2 bg-[#0F172A] p-3 rounded-xl">
+                          {ITEMS.map(item => (
+                            <label key={item.key} className="flex gap-3 items-start p-2 rounded-lg active:bg-slate-800">
+                              <input
+                                type="checkbox"
+                                checked={lineItems[item.key]}
+                                onChange={e => setLineItems({ ...lineItems, [item.key]: e.target.checked })}
+                                className="performer-check mt-0.5 accent-[#06C755]"
+                              />
+                              <span className="text-sm text-slate-200 leading-snug">{item.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm text-slate-300 font-bold">⑤ モザイク</label>
+                        <div className="flex gap-3 mt-2">
+                          {['不要', '要'].map(m => (
+                            <button key={m} type="button"
+                              onClick={() => { setLineMosaicMain(m); if (m === '不要') setLineMosaicDetail(''); }}
+                              className={`flex-1 py-4 rounded-xl text-base font-bold border ${
+                                lineMosaicMain === m ? 'border-[#06C755] text-[#06C755] bg-[#06C755]/10' : 'border-slate-600 text-slate-400'
+                              }`}>{m}</button>
+                          ))}
+                        </div>
+                        {lineMosaicMain === '要' && (
+                          <div className="flex gap-3 mt-3">
+                            {['顔のみ', '全面'].map(d => (
+                              <button key={d} type="button" onClick={() => setLineMosaicDetail(d)}
+                                className={`flex-1 py-4 rounded-xl text-base font-bold border ${
+                                  lineMosaicDetail === d ? 'border-rose-500 text-rose-400' : 'border-slate-600 text-slate-400'
+                                }`}>{d}</button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isSending || !nameOk || !lineClothing || (lineMosaicMain === '要' && !lineMosaicDetail) || remainingConsents <= 0}
+                        className={`w-full py-4 rounded-xl font-bold text-base text-white ${
+                          isSending || !nameOk || !lineClothing || (lineMosaicMain === '要' && !lineMosaicDetail) || remainingConsents <= 0
+                            ? 'bg-slate-700 cursor-not-allowed' : 'bg-[#06C755] hover:bg-[#05b34c]'
+                        }`}
+                      >
+                        {remainingConsents <= 0
+                          ? '枠上限のため送信できません'
+                          : !nameOk
+                            ? 'フルネームを入力してください'
+                            : isSending
+                              ? '送信中...'
+                              : '同意して送信'}
+                      </button>
+                      <p className="text-sm text-slate-500 text-center">送信後は内容を変更できません。控えと注意文が自動返信されます。</p>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {!performerMode && (
+        <div className="py-4 text-center text-[10px] text-slate-500 border-t border-slate-800">
+          AI撮影許諾エージェント 管理仕様デモ v0.7｜連絡先非取得明記｜AI映像制作部・中流
+        </div>
+      )}
+    </div>
+  );
+};
+
+ReactDOM.render(<ConsentSystemDemo />, document.getElementById('root'));
+  </script>
+</body>
+</html>

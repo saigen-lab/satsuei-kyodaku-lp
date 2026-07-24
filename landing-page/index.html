@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>撮影許諾・出演同意書をQRで電子化｜肖像権トラブルを防ぐロケ管理【テレビ・YouTube】</title>
+  <meta name="description" content="撮影許諾・出演同意書・肖像権の同意をQRで完結。『まぁいいか』の口頭確認をやめ、いつ誰が同意したかのログを残す。テレビ番組・YouTube・企業VP・CMのロケ向け。編集引継ぎはCSV1枚。月額19,800円〜。">
+  <meta name="keywords" content="撮影許諾,出演同意書,肖像権,肖像権 同意書,モデルリリース,電子同意書,ロケ 同意書,動画制作 同意書,YouTube 肖像権,テレビ番組 ロケ,撮影同意書,QR 同意書">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="author" content="Broadcast-Bridge OS">
+  <link rel="canonical" id="canonicalLink" href="">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="撮影許諾・出演同意書をQRで電子化｜肖像権トラブルを防ぐロケ管理">
+  <meta property="og:description" content="紙と口頭の『まぁいいか』をやめ、撮影許諾の証跡を残す。テレビ・YouTube・企業VP向け。">
+  <meta property="og:url" id="ogUrl" content="">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- 公開時は下記だけ埋める（空なら計測・canonicalは自動スキップ） -->
+  <script>
+    window.LP_CONFIG = {
+      siteUrl: "", /* 例: https://username.github.io/repo/landing-page/ */
+      demoUrl: "../consent-system/index.html", /* Pagesでもリポジトリ構成が同じなら有効 */
+      gaId: "" /* 例: G-XXXXXXXX */
+    };
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"撮影許諾エージェント","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"撮影許諾・出演同意書・肖像権の同意をQRで電子化。未同意・モザイクの状態管理、編集CSV、連絡先非取得。","offers":{"@type":"AggregateOffer","lowPrice":"19800","highPrice":"79800","priceCurrency":"JPY","offerCount":"3"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"撮影許諾の電子同意書は法的に有効ですか？","acceptedAnswer":{"@type":"Answer","text":"完全な電子契約書ではありません。ただしいつ・誰が・どの規約に同意したかのログが残ります。"}},{"@type":"Question","name":"肖像権トラブルは防げますか？","acceptedAnswer":{"@type":"Answer","text":"ゼロにはできません。『まぁいいか』の口頭だけより、同意の有無と時点を説明しやすくなります。"}},{"@type":"Question","name":"YouTube撮影の肖像権対策にも使えますか？","acceptedAnswer":{"@type":"Answer","text":"はい。YouTube・Vlog・企業VP・CMなどのロケで使えます。"}},{"@type":"Question","name":"連絡先を取らないのはなぜ？","acceptedAnswer":{"@type":"Answer","text":"電話番号・メール等の連絡先は取得しません。入力負担を下げ、取得する情報を氏名と同意ログに限定するためです。氏名は個人情報に該当し得るため、最小化して取り扱います。"}}]}
+  </script>
+  <script>
+    (function () {
+      var c = window.LP_CONFIG || {};
+      if (c.siteUrl) {
+        var u = c.siteUrl.replace(/\/?$/, "/");
+        var can = document.getElementById("canonicalLink");
+        var og = document.getElementById("ogUrl");
+        if (can) can.setAttribute("href", u);
+        if (og) og.setAttribute("content", u);
+      } else {
+        var can2 = document.getElementById("canonicalLink");
+        if (can2) can2.parentNode.removeChild(can2);
+      }
+      if (c.gaId) {
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(c.gaId);
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        window.gtag = gtag;
+        gtag("js", new Date());
+        gtag("config", c.gaId);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,800&family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --muted: #5b6472;
+      --line: #e7e9ee;
+      --bg: #ffffff;
+      --bg-soft: #f5f7fa;
+      --accent: #0891b2;
+      --accent-dark: #0e7490;
+      --ok: #059669;
+      --warn: #d97706;
+      --bad: #e11d48;
+      --fs-xs: 0.8125rem;   /* 13px 注釈 */
+      --fs-sm: 0.9375rem;   /* 15px 補助 */
+      --fs-base: 1.125rem;  /* 18px 本文：行動を促す読みやすさ */
+      --fs-md: 1.25rem;     /* 20px リード */
+      --fs-lg: 1.5rem;      /* 24px カード見出し */
+      --fs-xl: clamp(1.75rem, 3.2vw, 2.25rem);   /* セクション見出し */
+      --fs-hero: clamp(1.55rem, 4.2vw, 2.75rem);
+    --fs-sec-1line: clamp(1.15rem, 3.2vw + 0.25rem, 2rem);
+      --lh-tight: 1.35;
+      --lh-body: 1.9;
+      --measure: 34em; /* 日本語の読みやすい1行長 */
+      --shadow: 0 24px 48px -28px rgba(15, 23, 42, .28);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: "Noto Sans JP", "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: var(--fs-base);
+      line-height: var(--lh-body);
+      letter-spacing: 0.02em;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1080px, calc(100% - 48px)); margin-inline: auto; }
+    .text-block { max-width: var(--measure); }
+
+    .progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 100;
+      background: linear-gradient(90deg, var(--accent), #22d3ee);
+    }
+
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 1rem; letter-spacing: -.01em;
+    }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: var(--ink); color: #fff; display: grid; place-items: center;
+    }
+    .brand-mark svg { width: 16px; height: 16px; }
+    .nav-links { display: flex; align-items: center; gap: 2px; }
+    .nav-links a {
+      padding: 10px 14px; border-radius: 999px;
+      font-size: var(--fs-sm); color: var(--muted); font-weight: 600;
+    }
+    .nav-links a:hover { color: var(--ink); background: var(--bg-soft); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 52px; padding: 0 26px; border-radius: 999px;
+      font-weight: 700; font-size: 1rem; border: 0; cursor: pointer;
+      transition: transform .2s, background .2s;
+    }
+    .btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .btn-dark { background: var(--ink); color: #fff; }
+    .btn-dark:hover { background: #222; transform: translateY(-1px); }
+    .btn-line { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .btn-line:hover { background: var(--bg-soft); }
+    .btn-accent {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 12px 28px -12px rgba(8,145,178,.75);
+    }
+    .btn-accent:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .btn-nav { height: 42px; padding: 0 18px; font-size: var(--fs-sm); }
+
+    .hero {
+      padding: 96px 0 80px;
+      background:
+        radial-gradient(900px 420px at 85% 0%, rgba(8,145,178,.10), transparent 60%),
+        linear-gradient(180deg, #fafbfc 0%, #fff 72%);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.08fr .92fr; gap: 64px; align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 999px;
+      background: #fff; border: 1px solid var(--line);
+      font-size: var(--fs-xs); font-weight: 700; color: var(--muted);
+      margin-bottom: 22px; line-height: 1.4;
+    }
+    .eyebrow i {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(5,150,105,.15);
+    }
+    .hero h1 {
+      white-space: normal;
+      overflow: visible;
+      max-width: 14em;
+      font-size: var(--fs-hero);
+      font-weight: 900;
+      margin-bottom: 20px;
+      letter-spacing: -.03em;
+      line-height: 1.4;
+    }
+    .hero h1 .line {
+      display: block;
+    }
+    .hero h1 .line:nth-child(2) {
+      margin: 0.06em 0;
+    }
+    .hero h1 em {
+      font-style: normal;
+      font-size: 1.18em;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--accent), #0ea5e9);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -.02em;
+    }
+    .headline-1line {
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 100%;
+      letter-spacing: -.04em;
+      line-height: 1.25;
+    }
+    .headline-1line em {
+      font-style: normal;
+      font-size: 1.2em;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--accent), #0ea5e9);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sec-head h2.headline-1line {
+      font-size: var(--fs-sec-1line);
+      font-weight: 900;
+      margin-bottom: 14px;
+      color: inherit;
+    }
+    .solution .sec-head h2.headline-1line { color: #fff; }
+    .cta h2.headline-1line {
+      font-size: var(--fs-sec-1line);
+      font-weight: 900;
+      margin-bottom: 14px;
+      line-height: 1.25;
+      position: relative;
+    }
+    /* 心理階層：強調→小さく（視線誘導） */
+    .em-line {
+      display: block;
+      font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.55;
+      letter-spacing: -.01em;
+      margin-bottom: 8px;
+    }
+    .sub-line {
+      display: block;
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+    .note-line {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #8b93a1;
+      line-height: 1.7;
+      margin-top: 6px;
+    }
+    .hero-lead {
+      font-size: var(--fs-md);
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: var(--measure);
+      margin-bottom: 20px;
+    }
+    .hero-lead strong {
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 1.15em;
+    }
+    .hero-hook {
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent);
+      background: rgba(8,145,178,.07);
+      border-radius: 0 14px 14px 0;
+      margin-bottom: 28px;
+      max-width: var(--measure);
+    }
+    .hero-hook .em-line { margin-bottom: 6px; }
+    .sec-head .em-line {
+      font-size: clamp(1.35rem, 3vw, 1.85rem);
+      margin-bottom: 10px;
+    }
+    .sec-head .sub-line {
+      font-size: 1rem;
+      max-width: 30em;
+      margin-inline: auto;
+    }
+    .step-body .em-line {
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .step-body .sub-line { color: #b0b8c4; }
+    .step-body .note-line { color: #8b95a5; }
+    .f-item .em-line {
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .f-item .sub-line { font-size: 0.8rem; color: #9ca3af; }
+    .f-item .note-line { font-size: 0.72rem; color: #7b8494; }
+    .faq-item .em-line {
+      font-size: 1.12rem;
+      margin-bottom: 8px;
+    }
+    .faq-item .sub-line { font-size: 0.98rem; }
+    .faq-item .note-line { color: #8b93a1; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+    .hero-note {
+      font-size: var(--fs-xs);
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: var(--measure);
+    }
+
+    /* 実画面の覗き窓 */
+    .hero-panel {
+      position: relative;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      overflow: hidden;
+      min-height: 420px;
+    }
+    .panel-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 12px 16px;
+      background: #111827; border-bottom: 1px solid #1f2937;
+    }
+    .panel-top-left { display: flex; gap: 7px; align-items: center; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #4b5563; }
+    .panel-label {
+      font-size: 0.72rem; font-weight: 700; color: #94a3b8; letter-spacing: .04em;
+    }
+    .demo-peek {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    .real-slice {
+      padding: 16px 16px 80px;
+      color: #e2e8f0;
+      font-family: ui-sans-serif, system-ui, "Noto Sans JP", sans-serif;
+    }
+    .rs-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 14px;
+    }
+    .rs-title { font-size: 0.85rem; font-weight: 800; color: #f8fafc; }
+    .rs-quota {
+      font-size: 0.75rem; font-weight: 700; color: #67e8f9;
+      background: rgba(8,145,178,.15); border: 1px solid rgba(103,232,249,.3);
+      padding: 6px 10px; border-radius: 999px;
+    }
+    .rs-quota b { font-size: 0.95rem; }
+    .rs-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .rs-loc { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .rs-meta { font-size: 0.78rem; color: #94a3b8; margin-bottom: 14px; }
+    .rs-box {
+      background: #0b1220;
+      border: 1px solid #243244;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .rs-strong { font-size: 0.88rem; font-weight: 800; color: #e2e8f0; margin-bottom: 8px; }
+    .rs-text { font-size: 0.75rem; color: #94a3b8; line-height: 1.7; margin-bottom: 10px; }
+    .rs-list { list-style: none; display: grid; gap: 6px; }
+    .rs-list li { font-size: 0.74rem; color: #cbd5e1; }
+    .rs-label {
+      display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 6px;
+    }
+    .rs-input {
+      background: #0f172a; border: 1px solid #334155; border-radius: 10px;
+      padding: 12px 14px; font-size: 1rem; color: #f8fafc; margin-bottom: 12px;
+    }
+    .rs-btn {
+      width: 100%; border: 0; border-radius: 10px; padding: 14px;
+      background: #0891b2; color: #fff; font-size: 0.95rem; font-weight: 800;
+    }
+    .demo-peek::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 130px;
+      background: linear-gradient(180deg, transparent, #0f172a 78%);
+      pointer-events: none;
+    }
+    .demo-caption {
+      position: absolute;
+      left: 16px; right: 16px; bottom: 14px;
+      z-index: 2;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .demo-caption span {
+      font-size: 0.75rem; font-weight: 700; color: #cbd5e1;
+      background: rgba(15, 23, 42, .9);
+      border: 1px solid #334155;
+      padding: 8px 12px; border-radius: 999px;
+    }
+    .demo-caption a {
+      font-size: 0.75rem; font-weight: 800; color: #67e8f9;
+      background: rgba(8,145,178,.18);
+      border: 1px solid rgba(103,232,249,.35);
+      padding: 8px 12px; border-radius: 999px;
+    }
+
+    .metrics {
+      border-block: 1px solid var(--line);
+      background: var(--bg-soft);
+      padding: 36px 0;
+    }
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center;
+    }
+    .metric strong {
+      display: block; font-size: 1.65rem; font-weight: 900;
+      letter-spacing: -.02em; margin-bottom: 6px;
+    }
+    .metric span {
+      font-size: var(--fs-sm); color: var(--muted); font-weight: 600; line-height: 1.5;
+    }
+
+    .diff-band {
+      padding: 28px 0 8px;
+      background: #fff;
+    }
+    .diff-box {
+      max-width: 920px; margin: 0 auto;
+      border: 1px solid var(--line); border-radius: 20px;
+      padding: 28px 24px; background: var(--bg-soft);
+    }
+    .diff-box .em-line { text-align: center; margin-bottom: 8px; }
+    .diff-box .sub-line { text-align: center; margin-bottom: 18px; }
+    .diff-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .diff-item {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 18px 16px; text-align: center;
+    }
+    .diff-item strong {
+      display: block; font-size: 1.05rem; font-weight: 800;
+      margin-bottom: 6px; color: var(--ink);
+    }
+    .diff-item span {
+      display: block; font-size: 0.85rem; color: var(--muted); line-height: 1.65;
+    }
+    .diff-note {
+      margin-top: 14px; text-align: center;
+      font-size: 0.78rem; color: #8b93a1; line-height: 1.7;
+    }
+    @media (max-width: 960px) {
+      .diff-grid { grid-template-columns: 1fr; }
+    }
+
+    .usecases { padding: 48px 0 24px; }
+    .usecases > .wrap > p {
+      text-align: center; font-size: var(--fs-xs); font-weight: 700;
+      color: var(--muted); letter-spacing: .08em; margin-bottom: 18px;
+    }
+    .tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .tag {
+      padding: 12px 18px; border-radius: 999px; border: 1px solid var(--line);
+      background: #fff; font-size: var(--fs-sm); font-weight: 600; color: #374151;
+    }
+
+    .bridge { max-width: 720px; margin: 0 auto; text-align: center; }
+    .bridge p {
+      font-size: var(--fs-md); font-weight: 700; color: var(--ink); line-height: 1.8;
+    }
+    .bridge span { color: var(--accent-dark); }
+
+    section { padding: 104px 0; }
+    .sec-head { max-width: 720px; margin: 0 auto 56px; text-align: center; }
+    .sec-kicker {
+      display: inline-block; margin-bottom: 14px;
+      font-size: var(--fs-xs); font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+    }
+    .sec-head h2 {
+      font-size: inherit;
+      font-weight: inherit;
+      letter-spacing: normal;
+      line-height: normal;
+      margin-bottom: 18px;
+    }
+    .sec-head h2 .em-line {
+      font-size: clamp(1.4rem, 3.2vw, 1.9rem);
+      margin-bottom: 12px;
+    }
+    .sec-head h2 .sub-line {
+      font-size: 1.05rem;
+      max-width: 32em;
+      margin-inline: auto;
+    }
+    .sec-head > p {
+      color: var(--muted); font-size: 1rem; line-height: 1.8;
+      max-width: 30em; margin-inline: auto;
+    }
+
+    .problem-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .p-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 20px;
+      padding: 32px 28px; transition: transform .2s, box-shadow .2s;
+    }
+    .p-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .p-card.risk {
+      border-color: #fecdd3;
+      background: linear-gradient(180deg, #fff 55%, #fff1f2);
+    }
+    .p-icon {
+      width: 48px; height: 48px; border-radius: 14px; margin-bottom: 18px;
+      display: grid; place-items: center; background: var(--bg-soft); border: 1px solid var(--line);
+    }
+    .p-icon svg { width: 24px; height: 24px; stroke: #374151; fill: none; stroke-width: 2; }
+    .p-card.risk .p-icon { background: #fff1f2; border-color: #fecdd3; }
+    .p-card.risk .p-icon svg { stroke: var(--bad); }
+    .p-card h3 {
+      font-size: var(--fs-lg); font-weight: 800;
+      line-height: 1.4; margin-bottom: 16px; letter-spacing: -.01em;
+    }
+    .p-card li {
+      list-style: none; display: flex; gap: 10px; align-items: flex-start;
+      font-size: 1.05rem; color: var(--muted); padding: 8px 0; line-height: 1.7;
+    }
+    .p-card li::before { content: "×"; color: var(--bad); font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+    .risk-note {
+      margin-top: 28px; padding: 20px 22px; border-radius: 16px;
+      background: #fff; border: 1px dashed #fda4af;
+      font-size: var(--fs-sm); color: #9f1239; text-align: center; line-height: 1.8;
+    }
+
+    .solution { background: var(--ink); color: #fff; }
+    .solution .sec-kicker { color: #67e8f9; }
+    .solution .sec-head h2 { color: #fff; }
+    .solution .sec-head p { color: #a8b0bd; }
+    .steps { display: grid; gap: 0; max-width: 880px; margin: 0 auto 56px; }
+    .step {
+      display: grid; grid-template-columns: 72px 1fr; gap: 20px;
+      padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .step:last-child { border-bottom: 0; }
+    .step-num {
+      width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center;
+      background: linear-gradient(145deg, #0891b2, #0284c7);
+      font-weight: 900; font-size: 1.25rem;
+      box-shadow: 0 12px 28px -10px rgba(8,145,178,.8);
+    }
+    .step-body {
+      display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px; padding: 26px 28px;
+    }
+    .step-body h3 {
+      font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; line-height: 1.4;
+    }
+    .step-body p { color: #b0b8c4; font-size: 1.05rem; line-height: 1.8; }
+    .step-time {
+      white-space: nowrap; padding: 10px 16px; border-radius: 999px;
+      background: rgba(8,145,178,.18); border: 1px solid rgba(103,232,249,.25);
+      color: #67e8f9; font-size: var(--fs-sm); font-weight: 800;
+    }
+    .feature-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .f-item {
+      text-align: center; padding: 26px 16px; border-radius: 16px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    }
+    .f-item svg {
+      width: 26px; height: 26px; stroke: #67e8f9; fill: none; stroke-width: 2; margin-bottom: 12px;
+    }
+    .f-item h4 { font-size: 1.05rem; margin-bottom: 8px; line-height: 1.4; }
+    .f-item p { font-size: var(--fs-sm); color: #9ca3af; line-height: 1.6; }
+
+    .compare { background: var(--bg-soft); }
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+      max-width: 920px; margin: 0 auto;
+    }
+    .c-box {
+      background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 32px 28px;
+    }
+    .c-box.good { border-color: #a5f3fc; box-shadow: 0 0 0 3px rgba(8,145,178,.08); }
+    .c-box h3 {
+      font-size: 1.2rem; font-weight: 800; margin-bottom: 18px; line-height: 1.4;
+    }
+    .c-box.bad h3 { color: var(--muted); }
+    .c-box.good h3 { color: var(--accent-dark); }
+    .c-box li {
+      list-style: none; padding: 12px 0; border-bottom: 1px solid var(--line);
+      font-size: 1.05rem; color: #374151; display: flex; gap: 10px; line-height: 1.7;
+    }
+    .c-box li:last-child { border-bottom: 0; }
+    .c-box.bad li::before { content: "−"; color: var(--bad); font-weight: 800; }
+    .c-box.good li::before { content: "+"; color: var(--ok); font-weight: 800; }
+
+    .reassure {
+      max-width: 920px; margin: 40px auto 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    }
+    .reassure article {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px;
+    }
+    .reassure h4 {
+      font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; color: var(--accent-dark); line-height: 1.4;
+    }
+    .reassure p { font-size: var(--fs-sm); color: var(--muted); line-height: 1.75; }
+
+    .price-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+      max-width: 1000px; margin: 0 auto;
+    }
+    .price {
+      background: #fff; border: 1px solid var(--line); border-radius: 22px;
+      padding: 32px 28px; position: relative;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .price:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .price.featured { border: 2px solid var(--ink); }
+    .price.featured::before {
+      content: "おすすめ";
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--ink); color: #fff; font-size: var(--fs-xs); font-weight: 800;
+      padding: 6px 14px; border-radius: 999px;
+    }
+    .price .name { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+    .price .amount { font-size: 2.35rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.2; }
+    .price .amount span { font-size: 1rem; font-weight: 600; color: var(--muted); }
+    .price .init {
+      font-size: var(--fs-sm); color: var(--muted);
+      margin: 10px 0 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line);
+    }
+    .price li {
+      list-style: none; display: flex; gap: 10px; align-items: flex-start;
+      padding: 10px 0; font-size: 1.05rem; color: #374151; line-height: 1.6;
+    }
+    .price li::before { content: "✓"; color: var(--ok); font-weight: 800; }
+    .price .btn { width: 100%; margin-top: 22px; }
+
+    .faq { background: var(--bg-soft); }
+    .faq-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      max-width: 960px; margin: 0 auto;
+    }
+    .faq-item {
+      background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 28px 26px;
+    }
+    .faq-item h3 {
+      font-size: 1.15rem; font-weight: 800; margin-bottom: 12px; line-height: 1.5;
+    }
+    .faq-item p { font-size: 1.05rem; color: var(--muted); line-height: 1.85; }
+    .faq-item strong { color: #1f2937; }
+
+    .cta {
+      background: linear-gradient(160deg, #0a0a0a, #0f172a 60%, #164e63);
+      color: #fff; text-align: center; position: relative; overflow: hidden;
+    }
+    .cta::after {
+      content: ""; position: absolute; inset: auto -20% -40% auto;
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(8,145,178,.35), transparent 65%);
+      pointer-events: none;
+    }
+    .cta h2 {
+      /* .headline-1line で制御 */
+    }
+    .cta p {
+      color: #a8b0bd; margin-bottom: 10px; position: relative;
+      font-size: var(--fs-base); line-height: 1.8;
+    }
+    .cta .sub {
+      font-size: 1.05rem; color: #67e8f9; margin-bottom: 32px;
+      position: relative; font-weight: 700;
+    }
+    .cta .btn { position: relative; }
+
+    footer {
+      background: #0a0a0a; color: #9ca3af; text-align: center;
+      padding: 44px 0; border-top: 1px solid #1f2937;
+    }
+    footer strong {
+      display: block; color: #fff; margin-bottom: 8px; font-size: 1.05rem;
+    }
+    footer p { font-size: var(--fs-sm); line-height: 1.7; }
+
+    @media (max-width: 960px) {
+      .wrap { width: min(1080px, calc(100% - 28px)); }
+      .hero { padding: 64px 0 48px; }
+      section { padding: 72px 0; }
+      .hero-grid,
+      .price-grid,
+      .faq-grid,
+      .compare-grid,
+      .feature-row,
+      .metrics-grid,
+      .problem-grid,
+      .reassure { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 1fr; }
+      .step-body { grid-template-columns: 1fr; }
+      .nav-links a:not(.btn) { display: none; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .btn { width: 100%; }
+      .hero-actions { flex-direction: column; }
+      .hero h1 {
+        margin-bottom: 16px;
+        max-width: none;
+        text-align: left;
+        font-size: clamp(1.6rem, 7.2vw, 2.1rem);
+        line-height: 1.45;
+      }
+      .hero h1 .line { display: block; }
+      .hero h1 .line:nth-child(2) { margin: 0.1em 0; }
+      .hero-grid { gap: 28px; }
+      .hero-lead { font-size: 1rem; margin-bottom: 14px; }
+      .hero-hook { margin-bottom: 20px; padding: 14px 16px; }
+      .sec-head { margin-bottom: 36px; }
+      .hero-panel { min-height: 340px; }
+      .demo-peek { height: 340px; }
+      .demo-caption { flex-wrap: wrap; }
+      .eyebrow {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zm4 4h3v3h-3z"/></svg>
+        </span>
+        撮影許諾エージェント
+      </a>
+      <nav class="nav-links" aria-label="主要ナビ">
+        <a href="#problem">課題</a>
+        <a href="#how">使い方</a>
+        <a href="#pricing">料金</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-dark btn-nav" href="#contact">デモ予約</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">
+            <i></i>
+            撮影許諾・出演同意書・肖像権対策
+          </div>
+          <h1>
+            <span class="line">ロケの同意書、</span>
+            <span class="line"><em>「まぁいいか」</em>で</span>
+            <span class="line">終わらせていませんか？</span>
+          </h1>
+          <p class="hero-lead">
+            紙と口頭のままだと、あとから説明できません。<br>
+            QRで同意を取り、<strong>いつ・誰が・何に同意したか</strong>を残せます。
+          </p>
+          <div class="hero-hook">
+            <span class="em-line">面倒と時間がかかるだけではありません。</span>
+            <span class="sub-line">肖像権クレームで制作が止まる——それが本当の損失です。</span>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-accent" href="https://forms.gle/tCAy5ADFERGwvk4FA" target="_blank" rel="noopener">
+              15分デモで現場を確認
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a class="btn btn-line" href="#problem">なぜ今、必要か</a>
+          </div>
+          <p class="hero-note">
+            初期費用0円の梅プランあり<br>
+            ※電子契約の完全代替ではありません（証跡の防波堤です）
+          </p>
+        </div>
+
+        <aside class="hero-panel" aria-label="デモ画面の一部">
+          <div class="panel-top">
+            <div class="panel-top-left">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <span class="panel-label">DEMO · 出演者画面（一部）</span>
+          </div>
+          <div class="demo-peek" id="demoPeek">
+            <!-- consent-system と同じ見た目の実画面スライス -->
+            <div class="real-slice">
+              <div class="rs-head">
+                <div class="rs-title">AI撮影許諾エージェント</div>
+                <div class="rs-quota">残り <b>47</b> / 50</div>
+              </div>
+              <div class="rs-card">
+                <div class="rs-loc">渋谷ロケ（デモ）</div>
+                <div class="rs-meta">株式会社サンプル制作／街角ドキュメント</div>
+                <div class="rs-box">
+                  <p class="rs-strong">肖像権・出演に関する同意</p>
+                  <p class="rs-text">私は、下記の許諾先に対し、本日撮影された映像・音声・写真について、下記チェック項目の範囲で利用することを同意します。</p>
+                  <ul class="rs-list">
+                    <li>✓ テレビ放送（地上波・BS・CS）および再放送</li>
+                    <li>✓ 公式SNSでの広報（X、Instagram、YouTube等）</li>
+                    <li>✓ 見逃し配信・VOD等のオンデマンド配信</li>
+                  </ul>
+                </div>
+                <label class="rs-label">お名前（フルネーム）</label>
+                <div class="rs-input">山田 太郎</div>
+                <button class="rs-btn" type="button" tabindex="-1">同意して送信する</button>
+              </div>
+            </div>
+            <div class="demo-caption">
+              <span>実デモ画面の一部を表示</span>
+              <a class="js-demo-link" href="../consent-system/index.html" target="_blank" rel="noopener">デモを開く</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="metrics">
+      <div class="wrap metrics-grid">
+        <div class="metric"><strong>10秒</strong><span>撮影許諾QRの発行</span></div>
+        <div class="metric"><strong>30秒</strong><span>出演同意の完了</span></div>
+        <div class="metric"><strong>CSV1枚</strong><span>編集への引継ぎ</span></div>
+        <div class="metric"><strong>証跡</strong><span>同意ログを自動保存</span></div>
+      </div>
+    </div>
+
+    <div class="diff-band">
+      <div class="wrap">
+        <div class="diff-box">
+          <span class="em-line">電子契約アプリとは、ここが違います</span>
+          <span class="sub-line">「契約書を送る箱」ではなく、制作現場のオペレーション向けです。</span>
+          <div class="diff-grid">
+            <div class="diff-item">
+              <strong>① 状態が一目</strong>
+              <span>未同意・モザイク希望・確認済を管理画面で把握</span>
+            </div>
+            <div class="diff-item">
+              <strong>② 編集はCSV1枚</strong>
+              <span>口頭・LINE散在をやめ、ポスプロへそのまま引継ぎ</span>
+            </div>
+            <div class="diff-item">
+              <strong>③ 連絡先は取らない</strong>
+              <span>電話・メール等は取得せず、情報を最小化</span>
+            </div>
+          </div>
+          <p class="diff-note">※デモは無料。本番の課金契約は、署名・原本保管などの機能が揃ってからご案内します。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="usecases">
+      <div class="wrap">
+        <p>こんな現場で使えます</p>
+        <div class="tags">
+          <span class="tag">テレビ番組ロケ</span>
+          <span class="tag">YouTube・肖像権</span>
+          <span class="tag">企業VP撮影</span>
+          <span class="tag">CM・広告制作</span>
+          <span class="tag">街頭インタビュー</span>
+          <span class="tag">イベント収録</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="problem">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-kicker">Why it matters</span>
+          <h2 class="visually-keep">
+            <span class="em-line">現場が嫌いなのは「面倒」と「時間がかかること」。</span>
+            <span class="sub-line">本当に怖いのは、あとから「説明できない」ことです。</span>
+          </h2>
+          <p>
+            撮影許諾・出演同意書・肖像権——<br>
+            言葉は違っても、失敗パターンは同じです。
+          </p>
+        </div>
+
+        <div class="problem-grid">
+          <article class="p-card">
+            <div class="p-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <h3>現場の面倒・時間切れ</h3>
+            <ul>
+              <li>紙の出演同意書を何十枚も持ち歩く</li>
+              <li>同意回収に時間がかかり、ロケが遅れる</li>
+              <li>「今は撮っちゃえ」で流れが優先される</li>
+            </ul>
+          </article>
+
+          <article class="p-card">
+            <div class="p-icon">
+              <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            </div>
+            <h3>編集の混乱</h3>
+            <ul>
+              <li>「この人、撮影許諾取れてる？」が毎回発生</li>
+              <li>LINE・口頭・紙が混在して探せない</li>
+              <li>モザイク判断の根拠が残っていない</li>
+            </ul>
+          </article>
+
+          <article class="p-card risk">
+            <div class="p-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3>「まぁいいか」のリスク</h3>
+            <ul>
+              <li>口頭だけだと、肖像権クレーム時に説明が弱い</li>
+              <li>SNS拡散後に「同意していない」と言われやすい</li>
+              <li>放送・公開後の差し替え・謝罪対応コストが大きい</li>
+            </ul>
+          </article>
+
+          <article class="p-card">
+            <div class="p-icon">
+              <svg viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
+            </div>
+            <h3>管理部・コンプラの指摘</h3>
+            <ul>
+              <li>「出演同意書の原本どこ？」に答えられない</li>
+              <li>紙の紛失＝証跡の消失</li>
+              <li>「ちゃんと管理して」と言われて終わる</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="risk-note">
+          ※ここで言うのは「訴訟に絶対勝てる」話ではありません。<br>
+          <strong>『いつ・誰が・何に同意したか』を説明できる状態</strong>を作る話です。
+        </p>
+
+        <div class="bridge" style="margin-top:48px;">
+          <p>
+            <span class="em-line" style="font-size:1.2rem;">では、どうすれば？</span>
+            <span class="sub-line"><span style="color:var(--accent-dark);font-weight:700;">面倒と時間を増やさずに、証跡だけ残せるのか？</span></span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="solution" id="how">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-kicker">Solution</span>
+          <h2 class="headline-1line">撮影許諾は、QR 3ステップで完結</h2>
+          <p>覚えることは少なく、現場は止まりません。残るのは同意のログです。</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div>
+                <span class="em-line">ロケ作成 → 撮影許諾QRを発行</span>
+                <span class="sub-line">管理画面でロケを作り、出演同意用のQRを発行します。</span>
+              </div>
+              <span class="step-time">約10秒</span>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div>
+                <span class="em-line">出演者がスマホで同意</span>
+                <span class="sub-line">QR読取 → 氏名入力 → 同意。</span>
+                <span class="note-line">※連絡先（電話・メール等）は取りません。取得情報を最小化します。</span>
+              </div>
+              <span class="step-time">約30秒</span>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div>
+                <span class="em-line">編集へCSVで引継ぎ</span>
+                <span class="sub-line">未同意・モザイク希望・確認済を含むCSVを1クリックで出力。</span>
+                <span class="note-line">口頭確認の往復時間を減らせます。</span>
+              </div>
+              <span class="step-time">1クリック</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="feature-row">
+          <div class="f-item">
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+            <span class="em-line">紙が不要</span>
+            <span class="sub-line">QRを見せるだけ</span>
+          </div>
+          <div class="f-item">
+            <svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="em-line">状態が一目</span>
+            <span class="sub-line">未同意・モザイク・確認済</span>
+          </div>
+          <div class="f-item">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span class="em-line">連絡先は取らない</span>
+            <span class="sub-line">電話・メール等は取得しない</span>
+            <span class="note-line">※氏名は同意に必要な範囲で最小化</span>
+          </div>
+          <div class="f-item">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span class="em-line">同意ログを保全</span>
+            <span class="sub-line">AWS WORMに自動保存</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="compare">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-kicker">Before / After</span>
+          <h2>
+            「口頭の安心」と<br>
+            「説明できる安心」
+          </h2>
+          <p>
+            電子契約の箱ではなく、<br>
+            制作デスクのオペレーションを置き換えます。
+          </p>
+        </div>
+
+        <div class="compare-grid">
+          <div class="c-box bad">
+            <h3>紙・LINE・「まぁいいか」</h3>
+            <ul>
+              <li>撮影許諾の有無が人の記憶に依存</li>
+              <li>肖像権クレーム時に時点証明が弱い</li>
+              <li>編集への引継ぎが口頭とチャット散在</li>
+              <li>管理部への原本提示ができない</li>
+            </ul>
+          </div>
+          <div class="c-box good">
+            <h3>撮影許諾エージェント</h3>
+            <ul>
+              <li>出演同意をQRでその場取得</li>
+              <li>未同意・モザイク・確認済が一目</li>
+              <li>編集はCSV1枚で状態共有</li>
+              <li>連絡先は取らず、証跡は保全</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reassure">
+          <article>
+            <h4>不安が強い人へ</h4>
+            <p>有事に「ログを出せる」。完全無敗ではなく、口頭より強い防波堤です。</p>
+          </article>
+          <article>
+            <h4>速さ重視の人へ</h4>
+            <p>現場はQR提示だけ。手際よく、プロっぽく終わります。</p>
+          </article>
+          <article>
+            <h4>正しさ重視の人へ</h4>
+            <p>未同意の可視化と改ざん防止で、「きちんとやった」を残せます。</p>
+          </article>
+        </div>
+
+        <div class="bridge" style="margin-top:48px;">
+          <p>
+            次は気になるところ——<br>
+            <span>いくらから始められるか</span>です。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-kicker">Pricing</span>
+          <h2>料金プラン</h2>
+          <p>
+            まずは梅プラン（初期0円）で、<br>
+            撮影許諾の運用を試せます。
+          </p>
+        </div>
+        <div class="price-grid">
+          <article class="price">
+            <p class="name">梅 ライト</p>
+            <p class="amount">¥19,800<span>/月</span></p>
+            <p class="init">初期費用 ¥0</p>
+            <ul>
+              <li>月50件まで（出演同意）</li>
+              <li>CSV出力</li>
+              <li>QR発行無制限</li>
+              <li>超過 100件/¥10,000</li>
+            </ul>
+            <a class="btn btn-line" href="#contact">デモを予約</a>
+          </article>
+          <article class="price featured">
+            <p class="name">竹 スタンダード</p>
+            <p class="amount">¥39,800<span>/月</span></p>
+            <p class="init">初期費用 ¥30,000</p>
+            <ul>
+              <li>月200件まで</li>
+              <li>PDF自動生成</li>
+              <li>Google Drive連携</li>
+              <li>超過 100件/¥10,000</li>
+            </ul>
+            <a class="btn btn-dark" href="#contact">デモを予約</a>
+          </article>
+          <article class="price">
+            <p class="name">松 エンタープライズ</p>
+            <p class="amount">¥79,800<span>/月</span></p>
+            <p class="init">初期費用 ¥80,000</p>
+            <ul>
+              <li>月1,000件まで</li>
+              <li>LINE連携</li>
+              <li>監査ログ証明書</li>
+              <li>オートチャージ対応</li>
+            </ul>
+            <a class="btn btn-line" href="#contact">デモを予約</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="wrap">
+        <div class="sec-head">
+          <span class="sec-kicker">FAQ</span>
+          <h2>よくある質問</h2>
+          <p>過大表現なしで、正直に答えます。</p>
+        </div>
+        <div class="faq-grid">
+          <article class="faq-item">
+            <span class="em-line">撮影許諾の電子同意書は法的に有効？</span>
+            <span class="sub-line">完全な電子契約書ではありません。ただし<strong>「いつ・誰が・どの規約に同意したか」のログ</strong>が残るため、紙紛失や口頭より強い防波堤になります。</span>
+            <span class="note-line">※法的結果を保証するものではありません。</span>
+          </article>
+          <article class="faq-item">
+            <span class="em-line">肖像権トラブルは防げますか？</span>
+            <span class="sub-line">トラブルをゼロにはできません。ただ<strong>『まぁいいか』の口頭だけ</strong>より、同意の有無と時点を説明しやすくなります。</span>
+          </article>
+          <article class="faq-item">
+            <span class="em-line">YouTubeの肖像権対策にも使える？</span>
+            <span class="sub-line"><strong>はい。</strong> YouTube・Vlog・企業VP・CMなど、動画制作ロケでの出演同意書取得に使えます。</span>
+          </article>
+          <article class="faq-item">
+            <span class="em-line">連絡先を取らないのはなぜ？</span>
+            <span class="sub-line">
+              <strong>電話番号・メール等の連絡先は取得しません。</strong>
+              入力負担を下げ、取得する情報を氏名と同意ログに限定するためです。
+            </span>
+            <span class="note-line">※氏名は個人情報に該当し得るため、「個人情報にしない」ではなく「最小化して取り扱う」設計です。</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="contact">
+      <div class="wrap">
+        <h2 class="headline-1line"><em>「まぁいいか」</em>を、今日で終わりに</h2>
+        <p>15分のデモで、撮影許諾・出演同意・CSV引継ぎの流れを確認できます。</p>
+        <p class="sub">不安な人ほど、一度画面を見たほうが早いです。</p>
+        <a class="btn btn-accent" href="https://forms.gle/tCAy5ADFERGwvk4FA" target="_blank" rel="noopener">
+          無料デモを予約する
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <strong>撮影許諾エージェント</strong>
+      <p>撮影許諾・出演同意書・肖像権の現場運用ツール｜Broadcast-Bridge OS</p>
+      <p style="margin-top:14px;">© 2026 All rights reserved.<br>本サービスは法的結果を保証するものではありません。</p>
+    </div>
+  </footer>
+
+  <style>
+    @media (max-width: 400px) {
+      :root {
+        --fs-sec-1line: clamp(0.95rem, 4.4vw, 1.2rem);
+      }
+      .wrap { width: calc(100% - 20px); }
+      .hero h1 { font-size: clamp(1.5rem, 8vw, 1.85rem); }
+      .headline-1line { white-space: normal; letter-spacing: -.03em; }
+    }
+  </style>
+  <script>
+    (function () {
+      var bar = document.getElementById('progress');
+      function onScroll() {
+        var h = document.documentElement;
+        var max = h.scrollHeight - h.clientHeight;
+        bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      var c = window.LP_CONFIG || {};
+      if (c.demoUrl) {
+        document.querySelectorAll('.js-demo-link').forEach(function (a) {
+          a.setAttribute('href', c.demoUrl);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
