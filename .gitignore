@@ -1,0 +1,10 @@
+﻿.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+credentials.json
+service-account*.json
+.DS_Store
+Thumbs.db
