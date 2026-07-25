@@ -2,19 +2,58 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>AI撮影許諾エージェント - 管理仕様デモ v0.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* iOSで入力時に勝手にズームしないよう、出演者画面の入力は16px以上にします */
+    /* 老眼・現場の屋外でも読めるサイズに寄せています（出演者画面） */
     .performer-input {
-      font-size: 16px !important;
-      min-height: 48px;
+      font-size: 20px !important;
+      min-height: 56px;
+      line-height: 1.45;
     }
     .performer-check {
-      width: 22px;
-      height: 22px;
+      width: 32px;
+      height: 32px;
       flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .performer-ui .pf-header-title {
+      font-size: 1.35rem !important;
+      line-height: 1.3;
+    }
+    .performer-ui .pf-header-sub {
+      font-size: 1.05rem !important;
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .performer-ui .pf-bubble,
+    .performer-ui .pf-body {
+      font-size: 1.15rem !important;
+      line-height: 1.65 !important;
+    }
+    .performer-ui .pf-label {
+      font-size: 1.15rem !important;
+      line-height: 1.4;
+    }
+    .performer-ui .pf-hint {
+      font-size: 1.05rem !important;
+      line-height: 1.5;
+    }
+    .performer-ui .pf-item {
+      font-size: 1.1rem !important;
+      line-height: 1.55 !important;
+    }
+    .performer-ui .pf-btn {
+      font-size: 1.2rem !important;
+      min-height: 56px;
+    }
+    .performer-ui .pf-items {
+      max-height: none !important;
+    }
+    .performer-ui .pf-pre {
+      font-size: 1.05rem !important;
+      line-height: 1.7 !important;
     }
   </style>
 </head>
@@ -24,9 +63,10 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script type="text/babel">
-const { useState, useMemo, useEffect } = React;
+const { useState, useMemo, useEffect, useRef } = React;
 
 // 営業戦略のハイブリッド案（2026-07-20ロック）と同期しています
 const PLANS = {
@@ -93,8 +133,84 @@ const ConsentSystemDemo = () => {
   const [newLocProgram, setNewLocProgram] = useState('街角ドキュメント');
   const [newLicensorMode, setNewLicensorMode] = useState('both');
   const [newLocNotice, setNewLocNotice] = useState('番組「街角ドキュメント」／お問い合わせ: seiyaku@example.com');
-  // デモは自動生成せず、同フォルダの demo-qr.png を埋め込み表示します
+  // 出演者向けURLはスマホから届くLANアドレスにします（file:// や localhost では届きません）
   const [qrImageBroken, setQrImageBroken] = useState(false);
+  const [lanHost, setLanHost] = useState(() => {
+    try {
+      const saved = localStorage.getItem('demoLanHost');
+      if (saved) return saved;
+    } catch (e) {}
+    const h = typeof window !== 'undefined' ? window.location.hostname : '';
+    if (h && h !== 'localhost' && h !== '127.0.0.1') return h;
+    return '192.168.11.4';
+  });
+  const [lanPort, setLanPort] = useState(() => {
+    const p = typeof window !== 'undefined' ? window.location.port : '';
+    return p || '3000';
+  });
+  const isFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:';
+  const isLoopbackHost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  );
+  const needsLanOverride = isFileProtocol || isLoopbackHost;
+
+  const performerEntryUrl = useMemo(() => {
+    try {
+      if (needsLanOverride) {
+        const host = (lanHost || '').trim();
+        const port = (lanPort || '3000').trim() || '3000';
+        if (!host) return '';
+        return `http://${host}:${port}/?view=input&loc=${encodeURIComponent(activeLocId)}`;
+      }
+      const u = new URL(window.location.href);
+      u.searchParams.set('view', 'input');
+      u.searchParams.set('loc', activeLocId);
+      return u.toString();
+    } catch (e) {
+      return '';
+    }
+  }, [activeLocId, needsLanOverride, lanHost, lanPort]);
+
+  // 外部APIに頼らず、画面内でQRを描画します
+  const qrMountRef = useRef(null);
+  useEffect(() => {
+    setQrImageBroken(false);
+    const el = qrMountRef.current;
+    if (!el) return;
+    el.innerHTML = '';
+    if (!performerEntryUrl || typeof QRCode === 'undefined') {
+      if (performerEntryUrl && typeof QRCode === 'undefined') setQrImageBroken(true);
+      return;
+    }
+    try {
+      new QRCode(el, {
+        text: performerEntryUrl,
+        width: 280,
+        height: 280,
+        colorDark: '#0F172A',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    } catch (e) {
+      setQrImageBroken(true);
+    }
+  }, [performerEntryUrl]);
+
+  const saveLanSettings = () => {
+    try {
+      localStorage.setItem('demoLanHost', (lanHost || '').trim());
+    } catch (e) {}
+  };
+
+  const copyPerformerUrl = async () => {
+    if (!performerEntryUrl) return;
+    try {
+      await navigator.clipboard.writeText(performerEntryUrl);
+      alert('出演者用URLをコピーしました。同じWi-Fiのスマホブラウザに貼り付けてください。');
+    } catch (e) {
+      prompt('このURLをスマホで開いてください', performerEntryUrl);
+    }
+  };
 
   const [searchQ, setSearchQ] = useState('');
   const [filterMode, setFilterMode] = useState('all');
@@ -171,6 +287,9 @@ const ConsentSystemDemo = () => {
   const remainingConsents = plan.maxConsents - usedCountTotal;
 
   // フルネーム判定（姓と名を半角/全角スペースで区切る）
+  // 将来メモ: 現場で「スペースが分かりにくい」と言われたら、
+  // ①お名前1欄＋スペース強制 ではなく、姓／名の2欄（lineFamily / lineGiven）に分ける候補。
+  // いまは直さない（デモ優先）。変更時はCSV・同意ログの name 列も要確認。
   const isFullName = (name) => {
     const normalized = (name || '').trim().replace(/\u3000/g, ' ');
     const parts = normalized.split(/\s+/).filter(Boolean);
@@ -511,31 +630,77 @@ const ConsentSystemDemo = () => {
                 </div>
               </div>
 
-              {/* デモ用埋め込みQR（発行しない。consent-system/demo-qr.png を差し替え） */}
+              {/* デモ用QR：スマホから届くLAN URLを埋め込みます */}
               <div className="mt-4 p-4 bg-slate-900/50 border border-slate-600 rounded-xl flex flex-col items-center">
-                <p className="text-[10px] text-slate-400 mb-2 font-bold">出演者向けQR（デモ埋め込み）</p>
-                {!qrImageBroken ? (
-                  <img
-                    src="demo-qr.png"
-                    alt="デモ用埋め込みQR"
-                    className="w-[220px] h-[220px] object-contain bg-white p-3 rounded-xl border-2 border-slate-300"
-                    onError={() => setQrImageBroken(true)}
+                <p className="text-[10px] text-slate-400 mb-2 font-bold">出演者向けQR（デモ）</p>
+
+                {needsLanOverride && (
+                  <div className="w-full max-w-md bg-amber-500/10 border border-amber-500/40 rounded-xl p-3 text-xs text-amber-100 leading-relaxed mb-3">
+                    <strong className="block mb-2">スマホで見る手順</strong>
+                    1. PCでデモサーバー起動（ポート3000）<br/>
+                    2. 下のQRをスマホで読む（同じWi-Fi）<br/>
+                    3. うまくいかないときは、PCでも
+                    <span className="text-white font-bold"> http://{lanHost || '（IP）'}:{lanPort || '3000'}/ </span>
+                    を開いて確認してください
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <label className="sm:col-span-2">
+                        <span className="text-[10px] text-amber-200/80">PCのLAN IP</span>
+                        <input
+                          value={lanHost}
+                          onChange={e => setLanHost(e.target.value)}
+                          onBlur={saveLanSettings}
+                          placeholder="例: 192.168.11.4"
+                          className="w-full mt-1 bg-[#0F172A] border border-amber-500/40 rounded-lg p-2 text-sm text-white"
+                        />
+                      </label>
+                      <label>
+                        <span className="text-[10px] text-amber-200/80">ポート</span>
+                        <input
+                          value={lanPort}
+                          onChange={e => setLanPort(e.target.value)}
+                          placeholder="3000"
+                          className="w-full mt-1 bg-[#0F172A] border border-amber-500/40 rounded-lg p-2 text-sm text-white"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {performerEntryUrl && !qrImageBroken ? (
+                  <div
+                    ref={qrMountRef}
+                    className="bg-white p-3 rounded-xl border-2 border-slate-300 inline-flex items-center justify-center [&_img]:block [&_canvas]:block"
+                    aria-label="出演者入力用QR"
                   />
                 ) : (
-                  <div className="w-[220px] h-[220px] bg-amber-500/10 border border-amber-500/40 rounded-xl p-4 text-[10px] text-amber-200 leading-relaxed flex items-center">
-                    demo-qr.png が見つかりません。
-                    consent-system フォルダに、マサが用意したQR画像を
-                    <strong className="mx-1">demo-qr.png</strong>
-                    という名前で置いてください。
+                  <div className="w-[220px] h-[220px] bg-rose-500/10 border border-rose-500/40 rounded-xl p-4 text-[10px] text-rose-200 leading-relaxed flex items-center">
+                    QRを表示できません。上のIPを入力するか、「出演者入力を開く」を使ってください。
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-2">出演者にこのQRを見せるだけ（{activeLoc?.name}）</p>
                 <p className="text-[9px] text-emerald-400 mt-1 text-center max-w-md break-all">
-                  飛び先: http://192.168.11.4:3000/?view=input&amp;loc=loc1
+                  飛び先: {performerEntryUrl || '（取得できません）'}
                 </p>
                 <p className="text-[9px] text-slate-500 mt-1 text-center max-w-md">
-                  ※PCでデモサーバー起動中・iPhoneは同じWi-Fiであること。サーバー未起動時は「出演者入力を開く」を使う。
+                  ※スマホはPCと同じWi-Fiであること。ファイアウォールで3000番が塞がれている場合は許可が必要です。
                 </p>
+                <div className="flex flex-wrap gap-2 mt-3 justify-center">
+                  <button
+                    type="button"
+                    onClick={copyPerformerUrl}
+                    className="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-bold"
+                  >
+                    URLをコピー
+                  </button>
+                  <a
+                    href={performerEntryUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-bold text-white"
+                  >
+                    このURLを開く
+                  </a>
+                </div>
 
                 <div className="mt-4 p-3 bg-slate-900/50 border border-slate-600 rounded-lg text-center w-full max-w-md">
                   <div className="text-[10px] text-slate-400 mb-1">同意枠（{selectedPlan}プラン）</div>
@@ -699,37 +864,37 @@ const ConsentSystemDemo = () => {
           <div className={`flex justify-center ${performerMode ? 'min-h-screen' : ''}`}>
             <div className={`w-full bg-[#111827] overflow-hidden ${
               performerMode
-                ? 'max-w-lg min-h-screen'
+                ? 'max-w-xl min-h-screen performer-ui'
                 : 'max-w-[420px] border-4 border-slate-700 rounded-[36px] shadow-2xl'
             }`}>
-              <div className="bg-[#06C755] text-white px-5 py-4 sticky top-0 z-10">
+              <div className="bg-[#06C755] text-white px-5 py-5 sticky top-0 z-10">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <div className="font-bold text-lg">撮影許可窓口</div>
-                    <div className="text-sm opacity-90">{activeLoc?.name || ''}</div>
+                    <div className="font-bold text-lg pf-header-title">撮影許可窓口</div>
+                    <div className="text-sm opacity-90 pf-header-sub">{activeLoc?.name || ''}</div>
                   </div>
                   {performerMode && (
                     <button
                       type="button"
                       onClick={backToAdmin}
-                      className="text-xs bg-white/20 px-3 py-2 rounded-lg font-bold whitespace-nowrap"
+                      className="text-sm bg-white/20 px-4 py-3 rounded-lg font-bold whitespace-nowrap"
                     >
                       管理へ
                     </button>
                   )}
                 </div>
               </div>
-              <div className={`p-4 bg-[#111827] space-y-4 ${performerMode ? 'pb-10' : 'max-h-[70vh] overflow-y-auto'}`}>
+              <div className={`p-5 bg-[#111827] space-y-5 ${performerMode ? 'pb-12' : 'max-h-[70vh] overflow-y-auto'}`}>
                 {replyPreview ? (
                   <div className="space-y-4">
-                    <div className="text-center text-emerald-400 font-bold text-lg">✅ 送信完了</div>
-                    <div className="text-sm font-bold text-[#06C755]">{replyPreview.title}</div>
-                    <pre className="whitespace-pre-wrap text-sm text-slate-300 bg-slate-900 p-4 rounded-xl border border-slate-700 leading-relaxed">
+                    <div className="text-center text-emerald-400 font-bold text-xl pf-header-title">✅ 送信完了</div>
+                    <div className="text-base font-bold text-[#06C755] pf-label">{replyPreview.title}</div>
+                    <pre className="whitespace-pre-wrap text-base text-slate-300 bg-slate-900 p-4 rounded-xl border border-slate-700 leading-relaxed pf-pre">
 {replyPreview.body}
                     </pre>
                     <button
                       onClick={() => setReplyPreview(null)}
-                      className="w-full py-4 rounded-xl bg-slate-700 text-base font-bold"
+                      className="w-full py-5 rounded-xl bg-slate-700 text-lg font-bold pf-btn"
                     >
                       次の入力へ
                     </button>
@@ -737,22 +902,22 @@ const ConsentSystemDemo = () => {
                 ) : (
                   <>
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#06C755] flex items-center justify-center text-sm font-bold shrink-0">A</div>
-                      <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-base leading-relaxed">
+                      <div className="w-11 h-11 rounded-full bg-[#06C755] flex items-center justify-center text-base font-bold shrink-0">A</div>
+                      <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-none text-base leading-relaxed pf-bubble">
                         本日のロケへのご協力ありがとうございます。肖像権・出演の同意をお願いします。（約1分）
                       </div>
                     </div>
 
                     <details className="bg-slate-900 rounded-xl border border-slate-700 open:pb-1">
-                      <summary className="p-4 text-base font-bold text-slate-200 cursor-pointer">
+                      <summary className="p-4 text-lg font-bold text-slate-200 cursor-pointer pf-label">
                         同意文を読む（タップで開く）
                       </summary>
-                      <pre className="whitespace-pre-wrap text-sm text-slate-300 px-4 pb-4 leading-relaxed">
+                      <pre className="whitespace-pre-wrap text-base text-slate-300 px-4 pb-4 leading-relaxed pf-pre">
 {activeLoc ? buildPreamble(activeLoc) : ''}
                       </pre>
                     </details>
 
-                    <div className={`p-3 rounded-xl text-center text-base ${
+                    <div className={`p-4 rounded-xl text-center text-base pf-body ${
                       remainingConsents <= 0 ? 'bg-rose-500/20 border border-rose-500/50' :
                       remainingConsents <= 10 ? 'bg-amber-500/20 border border-amber-500/50' :
                       'bg-slate-800 border border-slate-600'
@@ -770,68 +935,68 @@ const ConsentSystemDemo = () => {
                       )}
                     </div>
 
-                    <form onSubmit={handleLineSubmit} className="bg-[#1E293B] border border-slate-700 rounded-xl p-4 space-y-5">
+                    <form onSubmit={handleLineSubmit} className="bg-[#1E293B] border border-slate-700 rounded-xl p-5 space-y-6">
                       <div>
-                        <label className="text-sm text-slate-300 font-bold">① お名前（フルネーム） *</label>
+                        <label className="text-base text-slate-300 font-bold pf-label">① お名前（フルネーム） *</label>
                         <input
                           required
                           value={lineName}
                           onChange={e => setLineName(e.target.value)}
                           placeholder="山田 太郎"
                           autoComplete="name"
-                          className={`performer-input w-full bg-[#0F172A] border rounded-xl px-4 mt-2 text-base ${
+                          className={`performer-input w-full bg-[#0F172A] border rounded-xl px-4 mt-2 ${
                             lineName && !nameOk ? 'border-rose-500' : 'border-slate-600'
                           }`}
                         />
-                        <p className={`text-sm mt-2 ${lineName && !nameOk ? 'text-rose-400' : 'text-slate-500'}`}>
+                        <p className={`text-base mt-2 pf-hint ${lineName && !nameOk ? 'text-rose-400' : 'text-slate-500'}`}>
                           {lineName && !nameOk
                             ? '姓と名のあいだにスペースを入れてください（例: 山田 太郎）'
                             : '姓と名をスペース区切りで入力してください'}
                         </p>
                       </div>
                       <div>
-                        <label className="text-sm text-slate-300 font-bold">② 年代 *</label>
+                        <label className="text-base text-slate-300 font-bold pf-label">② 年代 *</label>
                         <select
                           value={lineAge}
                           onChange={e => setLineAge(e.target.value)}
-                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2 text-base"
+                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2"
                         >
                           <option>10代</option><option>20代</option><option>30代</option><option>40代</option><option>50代以上</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-sm text-slate-300 font-bold">③ 本日の服装 *</label>
+                        <label className="text-base text-slate-300 font-bold pf-label">③ 本日の服装 *</label>
                         <input
                           required
                           value={lineClothing}
                           onChange={e => setLineClothing(e.target.value)}
                           placeholder="赤のTシャツなど"
-                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2 text-base"
+                          className="performer-input w-full bg-[#0F172A] border border-slate-600 rounded-xl px-4 mt-2"
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-slate-300 font-bold">④ ご同意項目（デフォルト全て）</label>
-                        <div className="max-h-56 overflow-y-auto space-y-2 mt-2 bg-[#0F172A] p-3 rounded-xl">
+                        <label className="text-base text-slate-300 font-bold pf-label">④ ご同意項目（デフォルト全て）</label>
+                        <div className="pf-items space-y-3 mt-3 bg-[#0F172A] p-3 rounded-xl">
                           {ITEMS.map(item => (
-                            <label key={item.key} className="flex gap-3 items-start p-2 rounded-lg active:bg-slate-800">
+                            <label key={item.key} className="flex gap-4 items-start p-3 rounded-xl active:bg-slate-800">
                               <input
                                 type="checkbox"
                                 checked={lineItems[item.key]}
                                 onChange={e => setLineItems({ ...lineItems, [item.key]: e.target.checked })}
-                                className="performer-check mt-0.5 accent-[#06C755]"
+                                className="performer-check accent-[#06C755]"
                               />
-                              <span className="text-sm text-slate-200 leading-snug">{item.label}</span>
+                              <span className="text-base text-slate-200 leading-relaxed pf-item">{item.label}</span>
                             </label>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm text-slate-300 font-bold">⑤ モザイク</label>
-                        <div className="flex gap-3 mt-2">
+                        <label className="text-base text-slate-300 font-bold pf-label">⑤ モザイク</label>
+                        <div className="flex gap-3 mt-3">
                           {['不要', '要'].map(m => (
                             <button key={m} type="button"
                               onClick={() => { setLineMosaicMain(m); if (m === '不要') setLineMosaicDetail(''); }}
-                              className={`flex-1 py-4 rounded-xl text-base font-bold border ${
+                              className={`flex-1 py-5 rounded-xl text-lg font-bold border pf-btn ${
                                 lineMosaicMain === m ? 'border-[#06C755] text-[#06C755] bg-[#06C755]/10' : 'border-slate-600 text-slate-400'
                               }`}>{m}</button>
                           ))}
@@ -840,7 +1005,7 @@ const ConsentSystemDemo = () => {
                           <div className="flex gap-3 mt-3">
                             {['顔のみ', '全面'].map(d => (
                               <button key={d} type="button" onClick={() => setLineMosaicDetail(d)}
-                                className={`flex-1 py-4 rounded-xl text-base font-bold border ${
+                                className={`flex-1 py-5 rounded-xl text-lg font-bold border pf-btn ${
                                   lineMosaicDetail === d ? 'border-rose-500 text-rose-400' : 'border-slate-600 text-slate-400'
                                 }`}>{d}</button>
                             ))}
@@ -850,7 +1015,7 @@ const ConsentSystemDemo = () => {
                       <button
                         type="submit"
                         disabled={isSending || !nameOk || !lineClothing || (lineMosaicMain === '要' && !lineMosaicDetail) || remainingConsents <= 0}
-                        className={`w-full py-4 rounded-xl font-bold text-base text-white ${
+                        className={`w-full py-5 rounded-xl font-bold text-lg text-white pf-btn ${
                           isSending || !nameOk || !lineClothing || (lineMosaicMain === '要' && !lineMosaicDetail) || remainingConsents <= 0
                             ? 'bg-slate-700 cursor-not-allowed' : 'bg-[#06C755] hover:bg-[#05b34c]'
                         }`}
@@ -863,7 +1028,7 @@ const ConsentSystemDemo = () => {
                               ? '送信中...'
                               : '同意して送信'}
                       </button>
-                      <p className="text-sm text-slate-500 text-center">送信後は内容を変更できません。控えと注意文が自動返信されます。</p>
+                      <p className="text-base text-slate-500 text-center pf-hint">送信後は内容を変更できません。控えと注意文が自動返信されます。</p>
                     </form>
                   </>
                 )}
