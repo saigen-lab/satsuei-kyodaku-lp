@@ -651,6 +651,63 @@
       width: 100%; border: 0; border-radius: 10px; padding: 14px;
       background: #0891b2; color: #fff; font-size: 0.95rem; font-weight: 800;
     }
+    .rs-qr-mock {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #0b1220;
+      border: 1px dashed #475569;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .rs-qr-box {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: #0f172a;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      border-radius: 8px;
+    }
+    .rs-qr-caption {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+    .rs-qr-caption strong {
+      color: #f8fafc;
+      font-weight: 800;
+    }
+    .rs-status-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+    .rs-status-list li {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+    .rs-status-list .ok,
+    .rs-status-list .warn,
+    .rs-status-list .ng {
+      display: inline-block;
+      min-width: 3.2em;
+      margin-right: 6px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-align: center;
+    }
+    .rs-status-list .ok { background: rgba(16,185,129,.2); color: #6ee7b7; }
+    .rs-status-list .warn { background: rgba(245,158,11,.2); color: #fcd34d; }
+    .rs-status-list .ng { background: rgba(244,63,94,.2); color: #fda4af; }
     .demo-peek::after {
       content: "";
       position: absolute;
@@ -1224,39 +1281,37 @@
             <div class="panel-top-left">
               <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
-            <span class="panel-label">DEMO · 出演者画面（一部）</span>
+            <span class="panel-label">DEMO · 管理画面のイメージ</span>
           </div>
           <div class="demo-peek" id="demoPeek">
             <div class="real-slice">
               <div class="rs-head">
                 <div class="rs-title">AI撮影許諾エージェント</div>
-                <div class="rs-quota">残り <b>47</b> / 50</div>
+                <div class="rs-quota">残り <b>46</b> / 50</div>
               </div>
               <div class="rs-card">
                 <div class="rs-loc">渋谷ロケ（デモ）</div>
                 <div class="rs-meta">株式会社サンプル制作／街角ドキュメント</div>
-                <div class="rs-box">
-                  <p class="rs-strong">肖像権・出演に関する同意</p>
-                  <p class="rs-text">私は、下記の許諾先に対し、本日撮影された映像・音声・写真について、下記チェック項目の範囲で利用することを同意します。</p>
-                  <ul class="rs-list">
-                    <li>✓ テレビ放送（地上波・BS・CS）および再放送</li>
-                    <li>✓ 公式SNSでの広報（X、Instagram、YouTube等）</li>
-                    <li>✓ 見逃し配信・VOD等のオンデマンド配信</li>
-                  </ul>
+                <div class="rs-qr-mock" aria-hidden="true">
+                  <div class="rs-qr-box">QR</div>
+                  <p class="rs-qr-caption"><strong>本来ここに出演者向けQRが生成されます</strong><br>読取後、出演者が氏名・同意を入力します</p>
                 </div>
-                <label class="rs-label">お名前（フルネーム）</label>
-                <div class="rs-input">山田 太郎</div>
-                <button class="rs-btn" type="button" tabindex="-1">同意して送信する</button>
+                <ul class="rs-status-list">
+                  <li><span class="ok">確認済</span> 田中 花子 · 通常OK</li>
+                  <li><span class="warn">未確認</span> 鈴木 太郎 · 一部不同意</li>
+                  <li><span class="ok">確認済</span> 佐藤 美咲 · モザイク（顔のみ）</li>
+                  <li><span class="ng">未確認</span> 山本 健 · モザイク全面＋項目NG</li>
+                </ul>
               </div>
             </div>
             <div class="demo-caption">
-              <span>実デモ画面の一部</span>
-              <span>上部または下部の「無料デモを見る」へ</span>
+              <span>管理画面のイメージ（静止）</span>
+              <span>実物は「無料デモを見る」へ</span>
             </div>
           </div>
         </aside>
         <p class="demo-note">
-          <strong>注意（デモQR）：</strong>このサイトの「無料デモを見る」から開いた画面で読み取ると、出演者入力に飛びます。パソコンのファイルを直接開いた状態ではスマホから開けません。そのときはデモ内の「出演者入力を開く」を使ってください。
+          <strong>注意：</strong>上はイメージです。実際のQR生成・同意ログ（OK／不同意／モザイク）は「無料デモを見る」から確認できます。
         </p>
         <h2 id="intro-title" class="intro-heading">撮影許諾とは</h2>
         <p class="ai-answer" style="margin:12px auto 0;">
@@ -1308,7 +1363,7 @@
           </article>
           <article class="eeat-card">
             <h3>連絡先 非取得</h3>
-            <span>電話・メールは取らず<br>情報を最小化</span>
+            <span>電話・メールは取らず情報を最小化<br>出演者の入力負担を下げ、現場の許諾が止まりにくくします</span>
           </article>
           <article class="eeat-card">
             <h3>β版特別価格 ¥19,800〜</h3>
@@ -1697,9 +1752,9 @@
             </div>
           </details>
           <details itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
-            <summary><h3 class="faq-q" itemprop="name">デモのQRを読んでも開けないときは？</h3></summary>
+            <summary><h3 class="faq-q" itemprop="name">デモのQRはどこで見られますか？</h3></summary>
             <div class="ans" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p itemprop="text">このサイトの<strong>「無料デモを見る」</strong>から開いた画面で読み取ってください。パソコンのファイルを直接開いた状態ではスマホから開けません。その場合はデモ内の<strong>「出演者入力を開く」</strong>を使えます。</p>
+              <p itemprop="text">LP上の画像はイメージです。実際の出演者向けQRと同意ログ（OK／不同意／モザイク）は、<strong>「無料デモを見る」</strong>から開いた管理画面で確認できます。</p>
             </div>
           </details>
           <details itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">

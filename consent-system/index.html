@@ -218,19 +218,35 @@ const ConsentSystemDemo = () => {
 
   const [dbData, setDbData] = useState([
     {
-      id: Date.now() - 3600000, locId: 'loc1', time: '12:15', name: '鈴木 太郎', age: '20代',
-      clothing: '黒のパーカー、ベージュのズボン',
-      item1: true, item2: true, item3: false, item4: true, item5: false,
-      item6: true, item7: true, item8: true, item9: false, item10: true,
-      mosaic: '不要', confirmed: false, directorNote: '',
-      expiresAt: Date.now() + 86400000, immutable: true,
-    },
-    {
-      id: Date.now() - 1800000, locId: 'loc1', time: '12:32', name: '田中 花子', age: '30代',
+      id: Date.now() - 7200000, locId: 'loc1', time: '11:48', name: '田中 花子', age: '30代',
       clothing: '白のブラウス、青のデニム',
       item1: true, item2: true, item3: true, item4: true, item5: true,
       item6: true, item7: true, item8: true, item9: true, item10: true,
       mosaic: '不要', confirmed: true, directorNote: 'OK・特記なし',
+      expiresAt: Date.now() + 86400000, immutable: true,
+    },
+    {
+      id: Date.now() - 5400000, locId: 'loc1', time: '12:05', name: '鈴木 太郎', age: '20代',
+      clothing: '黒のパーカー、ベージュのズボン',
+      item1: true, item2: true, item3: false, item4: true, item5: false,
+      item6: true, item7: false, item8: true, item9: false, item10: true,
+      mosaic: '不要', confirmed: false, directorNote: '広報・見逃し配信は不同意 → 編集で範囲確認',
+      expiresAt: Date.now() + 86400000, immutable: true,
+    },
+    {
+      id: Date.now() - 3600000, locId: 'loc1', time: '12:18', name: '佐藤 美咲', age: '40代',
+      clothing: 'グレーのコート、黒のパンツ',
+      item1: true, item2: true, item3: true, item4: true, item5: true,
+      item6: true, item7: true, item8: true, item9: true, item10: true,
+      mosaic: '顔のみ', confirmed: true, directorNote: 'モザイク要・顔のみ',
+      expiresAt: Date.now() + 86400000, immutable: true,
+    },
+    {
+      id: Date.now() - 1800000, locId: 'loc1', time: '12:41', name: '山本 健', age: '50代以上',
+      clothing: '紺のジャケット、スラックス',
+      item1: true, item2: false, item3: true, item4: true, item5: true,
+      item6: true, item7: true, item8: true, item9: false, item10: false,
+      mosaic: '全面', confirmed: false, directorNote: 'SNS・パッケージ不同意／モザイク全面 → 未確認のまま止め',
       expiresAt: Date.now() + 86400000, immutable: true,
     },
   ]);
